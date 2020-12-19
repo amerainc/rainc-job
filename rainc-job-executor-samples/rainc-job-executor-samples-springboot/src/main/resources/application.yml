@@ -1,0 +1,5 @@
+rainc:
+  job:
+    executor:
+      admin-addresses: http://localhost:8081/rainc-job-admin
+      app-name: rainc-job-executor-sample
