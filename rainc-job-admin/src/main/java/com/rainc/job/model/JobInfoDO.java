@@ -26,19 +26,16 @@ public class JobInfoDO {
     /**
      * 执行器分组主键
      */
-    @Column(nullable = false)
     private Long jobGroup;
 
     /**
      * 任务执行CRON
      */
-    @Column(nullable = false)
     private String jobCron;
 
     /**
      * 任务说明
      */
-    @Column(nullable = false)
     private String jobDesc;
 
     private Date addTime;
@@ -99,5 +96,4 @@ public class JobInfoDO {
      * 下次调度时间
      */
     private Long triggerNextTime;
-
 }

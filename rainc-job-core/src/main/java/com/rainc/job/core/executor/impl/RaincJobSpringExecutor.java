@@ -31,7 +31,11 @@ public class RaincJobSpringExecutor extends RaincJobExecutor implements Initiali
 
     @Override
     public void destroy() throws Exception {
-
+        try {
+            super.destroy();
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 
     /**

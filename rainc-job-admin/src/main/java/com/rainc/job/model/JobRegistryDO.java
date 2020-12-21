@@ -1,36 +1,31 @@
 package com.rainc.job.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @Author rainc
- * @create 2020/12/13 10:56
+ * @create 2020/12/21 21:41
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Entity
-@Table(name = "rainc_job_group")
-public class JobGroupDO {
+@Table(name = "rainc_job_registry")
+public class JobRegistryDO {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     private Long id;
-    /**
-     * 应用名称 与appInfo一致
-     */
+
     private String appName;
     /**
-     * 自定义命名
+     * 执行器地址
      */
-    private String title;
+    private String address;
     /**
-     * 执行器列表，有则手动，空则自动注册
+     * 更新时间
      */
-    private String addressList;
+    private Date updateTime;
 }

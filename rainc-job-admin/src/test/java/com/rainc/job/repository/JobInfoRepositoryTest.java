@@ -17,6 +17,15 @@ public class JobInfoRepositoryTest {
         RaincJobAdminConfig admainConfig = RaincJobAdminConfig.getAdminConfig();
         System.out.println(admainConfig);
         JobInfoRepository jobInfoRepository = admainConfig.getJobInfoRepository();
-        System.out.println(jobInfoRepository.findAllByTriggerNextTimeIsLessThan(50));
+        //System.out.println(jobInfoRepository.findAllByTriggerNextTimeIsLessThan(50));
+    }
+
+    @Test
+    public void update() {
+        RaincJobAdminConfig admainConfig = RaincJobAdminConfig.getAdminConfig();
+        System.out.println(admainConfig);
+        JobInfoRepository jobInfoRepository = admainConfig.getJobInfoRepository();
+        int i = jobInfoRepository.upDateNextTriggerTime(1, 1L, 1608551410000L);
+        System.out.println(i);
     }
 }

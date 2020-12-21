@@ -13,6 +13,12 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "rainc.job.admin")
 public class AdminProperties {
     private String accessToken;
+    /**
+     * 快线程
+     */
     private int triggerPoolFastMax;
+    /**
+     * 慢线程
+     */
     private int triggerPoolSlowMax;
 }

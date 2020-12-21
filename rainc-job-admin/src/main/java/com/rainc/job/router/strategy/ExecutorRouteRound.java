@@ -2,27 +2,31 @@ package com.rainc.job.router.strategy;
 
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.router.ExecutorRouter;
 
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * 轮询
+ *
  * @Author rainc
  * @create 2020/12/13 21:02
  */
 public class ExecutorRouteRound extends ExecutorRouter {
-    private static final ConcurrentMap<Integer, AtomicInteger> routeCountEachJob = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<Long, AtomicInteger> routeCountEachJob = new ConcurrentHashMap<>();
     private static long CACHE_VALID_TIME = 0;
 
-    private static int count(int jobId) {
-        // cache clear
+    private static int count(long jobId) {
+        // 每个24小时重置缓存
         if (System.currentTimeMillis() > CACHE_VALID_TIME) {
             routeCountEachJob.clear();
-            CACHE_VALID_TIME = System.currentTimeMillis() + 1000 * 60 * 60 * 24;
+            CACHE_VALID_TIME = System.currentTimeMillis() + TimeUnit.DAYS.toMillis(1);
         }
 
         AtomicInteger count = routeCountEachJob.get(jobId);
@@ -38,8 +42,8 @@ public class ExecutorRouteRound extends ExecutorRouter {
     }
 
     @Override
-    public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
-        String address = addressList.get(count(triggerParam.getJobId()) % addressList.size());
-        return new ReturnT<String>(address);
+    public ReturnT<ExecutorInfo> route(TriggerParam triggerParam, List<ExecutorInfo> executorListList) {
+        ExecutorInfo executorInfo = executorListList.get(count(triggerParam.getJobId()) % executorListList.size());
+        return new ReturnT<>(executorInfo);
     }
 }

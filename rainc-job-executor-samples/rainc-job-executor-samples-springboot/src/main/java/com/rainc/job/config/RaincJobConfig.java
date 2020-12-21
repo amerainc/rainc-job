@@ -27,6 +27,7 @@ public class RaincJobConfig {
         raincJobSpringExecutor.setAccessToken(executorProperties.getAccessToken());
         raincJobSpringExecutor.setIp(executorProperties.getIp());
         raincJobSpringExecutor.setPort(executorProperties.getPort());
+        raincJobSpringExecutor.setTaskPoolMax(executorProperties.getTaskPoolMax());
         return raincJobSpringExecutor;
     }
 }

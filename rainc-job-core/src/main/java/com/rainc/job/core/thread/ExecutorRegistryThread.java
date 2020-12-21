@@ -27,11 +27,11 @@ public class ExecutorRegistryThread {
     public void start(final String appname, final String address) {
         // valid
         if (appname == null || appname.trim().length() == 0) {
-            log.warn(">>>>>>>>>>> xxl-job, executor registry config fail, appname is null.");
+            log.warn(">>>>>>>>>>> rainc-job, executor registry config fail, appname is null.");
             return;
         }
         registryThread = new Thread(() -> {
-            //registry
+            //注册检测
             while (!toStop) {
                 try {
                     RegistryParam registryParam = new RegistryParam(appname, address);
@@ -47,7 +47,7 @@ public class ExecutorRegistryThread {
                                 log.info(">>>>>>>>>>> rainc-job registry fail, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
                             }
                         } catch (Exception e) {
-                            log.info(">>>>>>>>>>> xxl-job registry error, registryParam:{}", registryParam, e);
+                            log.info(">>>>>>>>>>> rainc-job registry error, registryParam:{}", registryParam, e);
                         }
                     }
                 } catch (Exception e) {

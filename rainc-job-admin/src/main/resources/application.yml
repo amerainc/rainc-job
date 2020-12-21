@@ -29,9 +29,21 @@ spring:
       ddl-auto: update
     show-sql: true
 
+
 #logging:
 rainc:
   job:
-    trigger-pool-fast-max: 200
-    trigger-pool-slow-max: 100
-#  level: info
+    admin:
+      trigger-pool-fast-max: 200
+      trigger-pool-slow-max: 100
+
+logging:
+  level:
+    root: info
+#    org:
+#      hibernate:
+#        SQL: debug   #debug时显示sql
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: trace  #trace时，显示参数

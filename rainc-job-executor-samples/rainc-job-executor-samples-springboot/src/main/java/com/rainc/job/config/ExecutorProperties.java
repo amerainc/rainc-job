@@ -12,10 +12,32 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "rainc.job.executor")
 public class ExecutorProperties {
+    /**
+     * 调度中心地址 ,分割多地址
+     */
     private String adminAddresses;
+    /**
+     * 秘钥
+     */
     private String accessToken;
+    /**
+     * appName
+     */
     private String appName;
+    /**
+     * 执行器地址
+     */
     private String address;
+    /**
+     * ip地址
+     */
     private String ip;
+    /**
+     * 端口地址
+     */
     private int port;
+    /**
+     * 任务线程池
+     */
+    private int taskPoolMax;
 }

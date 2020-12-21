@@ -1,30 +1,23 @@
 package com.rainc.job.core.biz.factory;
 
 import com.rainc.job.core.biz.AdminBiz;
-import com.rainc.job.core.biz.model.RegistryParam;
-import com.rainc.job.core.biz.model.ReturnT;
-import com.rainc.job.core.enums.AdminBizConfig;
-import feign.Feign;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
+import com.rainc.job.core.util.BizUtil;
 
 /**
+ * 简单工厂模式
+ *
  * @Author rainc
  * @create 2020/12/12 14:36
  */
 public class AdminBizFactory {
+    /**
+     * 创建adminBiz
+     *
+     * @param address     访问地址
+     * @param accessToken 验证秘钥
+     * @return adminBiz实例
+     */
     public static AdminBiz createAdminBiz(final String address, final String accessToken) {
-        return Feign.builder()
-                .encoder(new JacksonEncoder())
-                .decoder(new JacksonDecoder())
-                .requestInterceptor((requestTemplate -> {
-                    requestTemplate
-                            .header("connection", "Keep-Alive")
-                            .header("Content-Type", "application/json;charset=UTF-8")
-                            .header("Accept-Charset", "application/json;charset=UTF-8");
-                    if (accessToken != null && accessToken.trim().length() > 0) {
-                        requestTemplate.header(AdminBizConfig.XXL_JOB_ACCESS_TOKEN, accessToken);
-                    }
-                })).target(AdminBiz.class, address);
+        return BizUtil.createBiz(address, accessToken, AdminBiz.class);
     }
 }

@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * 执行器注册监听线程
  * @Author rainc
  * @create 2020/12/12 20:24
  */
@@ -27,14 +28,20 @@ public class JobRegistryMonitorHelper {
 
     public void start() {
         registryThread = new Thread(() -> {
+
             while (!toStop) {
                 try {
+
                     Collection<AppInfo> allAppInfo = RaincJobScheduler.getAllAppInfo();
                     Date nowTime = new Date();
                     //移除所有失效执行器
                     for (AppInfo appInfo : allAppInfo) {
                         Collection<ExecutorInfo> executorInfos = appInfo.getAddressMap().values();
                         for (ExecutorInfo executorInfo : executorInfos) {
+                            if (executorInfo.getUpdateTime() == null) {
+                                //无更新时间的执行器为手动注册执行器，不会失效
+                                continue;
+                            }
                             if (nowTime.getTime() - executorInfo.getUpdateTime().getTime() > TimeUnit.SECONDS.toMillis(RegistryConfig.DEAD_TIMEOUT)) {
                                 log.info(">>>>>>>> rainc-job executor remove{}", executorInfo);
                                 appInfo.getAddressMap().remove(executorInfo.getAddress());
@@ -64,7 +71,7 @@ public class JobRegistryMonitorHelper {
 
     public void toStop() {
         toStop = true;
-        // interrupt and wait
+        //中断并等待
         registryThread.interrupt();
         try {
             registryThread.join();

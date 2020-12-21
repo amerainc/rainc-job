@@ -2,6 +2,7 @@ package com.rainc.job.router.strategy;
 
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.router.ExecutorRouter;
 
 import java.util.List;
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public class ExecutorRouteFirst extends ExecutorRouter {
     @Override
-    public ReturnT<String> route(TriggerParam triggerParam, List<String> addressList) {
-        return new ReturnT<String>(addressList.get(0));
+    public ReturnT<ExecutorInfo> route(TriggerParam triggerParam, List<ExecutorInfo> executorInfoListList) {
+        return new ReturnT<>(executorInfoListList.get(0));
     }
 }

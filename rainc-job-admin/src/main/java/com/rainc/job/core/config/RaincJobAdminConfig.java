@@ -8,15 +8,14 @@ package com.rainc.job.core.config;
 import com.rainc.job.core.scheduler.RaincJobScheduler;
 import com.rainc.job.respository.JobGroupRepository;
 import com.rainc.job.respository.JobInfoRepository;
+import com.rainc.job.respository.JobLogRepository;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.Resource;
-import java.util.Map;
 
 /**
  * @Author rainc
@@ -52,6 +51,11 @@ public class RaincJobAdminConfig implements InitializingBean, DisposableBean {
     @Resource
     @Getter
     JobInfoRepository jobInfoRepository;
+
+    @Resource
+    @Getter
+    JobLogRepository jobLogRepository;
+
 
 
     //------------------------properties----------------------------

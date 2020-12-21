@@ -1,23 +1,26 @@
 package com.rainc.job.core.trigger;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
-import com.rainc.job.core.biz.ExecutorBiz;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.ShardingParam;
 import com.rainc.job.core.biz.model.TriggerParam;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.enums.ExecutorBlockStrategyEnum;
 import com.rainc.job.core.model.AppInfo;
 import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.core.model.GroupInfo;
 import com.rainc.job.core.scheduler.RaincJobScheduler;
+import com.rainc.job.core.util.IpUtil;
 import com.rainc.job.model.JobGroupDO;
 import com.rainc.job.model.JobInfoDO;
+import com.rainc.job.model.JobLogDO;
 import com.rainc.job.router.ExecutorRouteStrategyEnum;
 import lombok.extern.log4j.Log4j2;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 /**
@@ -27,19 +30,30 @@ import java.util.stream.Collectors;
 @Log4j2
 public class RaincJobTrigger {
 
+    /**
+     * 执行任务
+     *
+     * @param jobId                 任务id
+     * @param triggerType           任务类型
+     * @param failRetryCount        失败重试次数
+     * @param executorShardingParam 分配参数
+     * @param executorParam         执行参数
+     * @param executorList          执行器列表
+     */
     public static void trigger(long jobId,
                                TriggerTypeEnum triggerType,
                                int failRetryCount,
                                ShardingParam executorShardingParam,
                                String executorParam,
-                               List<String> addressList) {
+                               List<ExecutorInfo> executorList) {
+        //查询任务信息
         Optional<JobInfoDO> jobInfoOptional = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().findById(jobId);
         if (!jobInfoOptional.isPresent()) {
             log.warn(">>>>>>>>>>>> trigger fail, jobId invalid,jobId={}", jobId);
             return;
         }
         JobInfoDO jobInfo = jobInfoOptional.get();
-
+        //查询任务分组信息
         Optional<JobGroupDO> jobGroupOptional = RaincJobAdminConfig.getAdminConfig().getJobGroupRepository().findById(jobInfo.getJobGroup());
         if (!jobGroupOptional.isPresent()) {
             log.warn(">>>>>>>>>>>> trigger fail, groupId invalid,groupId={}", jobInfo.getJobGroup());
@@ -54,17 +68,13 @@ public class RaincJobTrigger {
         /**
          * 如果有addressList则放入
          */
-        if (addressList != null && addressList.size() > 0) {
-            groupInfo.setAddressList(addressList);
-        } else if (groupInfo.getAddressList() == null) {
-            //如果为空则表示自动注册，从注册表中读取
+        if (executorList != null && executorList.size() > 0) {
+            groupInfo.setExecutorList(executorList);
+        } else if (groupInfo.isAuto()) {
+            //如果为自动注册，从注册表中读取
             AppInfo appInfo = RaincJobScheduler.getAppInfo(groupInfo.getAppName());
             if (appInfo != null) {
-                groupInfo.setAddressList(
-                        appInfo.getAddressMap().values()
-                                .stream()
-                                .map((ExecutorInfo::getAddress))
-                                .collect(Collectors.toList()));
+                groupInfo.setExecutorList(new ArrayList<>(appInfo.getAddressMap().values()));
             }
         }
 
@@ -94,48 +104,112 @@ public class RaincJobTrigger {
         processTrigger(groupInfo, jobInfo, finalFailRetryCount, triggerType, shardingParam);
     }
 
-
+    /**
+     * 触发进程
+     *
+     * @param groupInfo
+     * @param jobInfo
+     * @param finalFailRetryCount
+     * @param triggerType
+     * @param shardingParam
+     */
     private static void processTrigger(GroupInfo groupInfo, JobInfoDO jobInfo, int finalFailRetryCount, TriggerTypeEnum triggerType, ShardingParam shardingParam) {
         //初始化参数
         //路由策略
         ExecutorRouteStrategyEnum executorRouteStrategyEnum = ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null);
+        //阻塞策略
+        ExecutorBlockStrategyEnum executorBlockStrategyEnum = ExecutorBlockStrategyEnum.match(jobInfo.getExecutorBlockStrategy(), ExecutorBlockStrategyEnum.SERIAL_EXECUTION);
+        //初始化日志信息
+        JobLogDO jobLogDO = new JobLogDO();
+        jobLogDO.setJobGroup(groupInfo.getId());
+        jobLogDO.setJobId(jobInfo.getId());
+        jobLogDO.setTriggerTime(new Date());
+        jobLogDO.setHandleCode(0);
+        RaincJobAdminConfig.getAdminConfig().getJobLogRepository().saveAndFlush(jobLogDO);
+        log.debug(">>>>>>>>>>> rainc-job trigger start, jobId:{}", jobLogDO.getId());
 
         //初始化触发参数
         TriggerParam triggerParam = TriggerParam.builder()
+                //任务参数
+                .jobId(jobInfo.getId())
                 .executorParams(jobInfo.getExecutorParam())
+                .executorBlockStrategy(jobInfo.getExecutorBlockStrategy())
                 .executorHandler(jobInfo.getExecutorHandler())
                 .executorTimeout(jobInfo.getExecutorTimeOut())
+                //日志参数
+                .logId(jobLogDO.getId())
+                .logDateTime(jobLogDO.getTriggerTime().getTime())
                 .build();
 
+
         //初始化路由地址
-        String address = null;
-        ReturnT<String> routeAddressResult = null;
-        if (groupInfo.getAddressList() != null && groupInfo.getAddressList().size() > 0) {
-            routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, groupInfo.getAddressList());
+        ExecutorInfo executorInfo = null;
+        ReturnT<ExecutorInfo> routeAddressResult = null;
+        if (groupInfo.getExecutorList() != null && groupInfo.getExecutorList().size() > 0) {
+            routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, groupInfo.getExecutorList());
             if (routeAddressResult.getCode() == ReturnT.SUCCESS_CODE) {
-                address = routeAddressResult.getContent();
+                executorInfo = routeAddressResult.getContent();
             }
         } else {
-            routeAddressResult = new ReturnT<String>(ReturnT.FAIL_CODE, "Trigger Fail：registry address is empty");
+            routeAddressResult = new ReturnT<>(ReturnT.FAIL_CODE, "Trigger Fail：registry address is empty");
         }
 
         //触发远程执行器
-
-    }
-
-
-    public static ReturnT<String> runExecutor(TriggerParam triggerParam, String address) {
-        ReturnT<String> runResult = null;
-        try {
-            ExecutorBiz executorBiz = RaincJobScheduler.getExecutorBiz(address);
-            runResult = executorBiz.run(triggerParam);
-        } catch (Exception e) {
-            log.error(">>>>>>>>>>> rainc-job trigger error, please check if the executor[{}] is running.", address, e);
-            runResult = new ReturnT<String>(ReturnT.FAIL_CODE, ExceptionUtil.getMessage(e));
+        ReturnT<String> triggerResult = null;
+        if (executorInfo != null) {
+            triggerResult = runExecutor(triggerParam, executorInfo);
+        } else {
+            triggerResult = new ReturnT<String>(ReturnT.FAIL_CODE, null);
         }
 
+        //收集触发信息
+        StringBuffer triggerMsgSb = new StringBuffer();
+        triggerMsgSb.append("任务触发类型").append("：").append(triggerType.getTitle());
+        triggerMsgSb.append("<br>").append("调度机器").append("：").append(IpUtil.getIp());
+        triggerMsgSb.append("<br>").append("执行器-注册方式").append("：").append(groupInfo.isAuto() ? "自动注册" : "手动注册");
+        triggerMsgSb.append("<br>").append("执行器-地址列表").append("：").append(groupInfo.getExecutorList());
+        triggerMsgSb.append("<br>").append("路由策略").append("：").append(executorRouteStrategyEnum.getTitle());
+        if (shardingParam != null) {
+            triggerMsgSb.append("(").append(shardingParam).append(")");
+        }
+        triggerMsgSb.append("<br>").append("阻塞策略").append("：").append(executorBlockStrategyEnum.getTitle());
+        triggerMsgSb.append("<br>").append("任务超时时间").append("：").append(jobInfo.getExecutorTimeOut());
+        triggerMsgSb.append("<br>").append("失败重试次数").append("：").append(finalFailRetryCount);
+
+        triggerMsgSb.append("<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>" + "触发调度" + "<<<<<<<<<<< </span><br>")
+                .append((routeAddressResult.getMsg() != null) ? routeAddressResult.getMsg() + "<br><br>" : "").append(triggerResult.getMsg() != null ? triggerResult.getMsg() : "");
+
+
+        // 6、保存触发信息
+        jobLogDO.setExecutorAddress(executorInfo != null ? executorInfo.getAddress() : null);
+        jobLogDO.setExecutorHandler(jobInfo.getExecutorHandler());
+        jobLogDO.setExecutorParam(jobInfo.getExecutorParam());
+        jobLogDO.setExecutorShardingParam(shardingParam != null ? shardingParam.toString() : null);
+        jobLogDO.setExecutorFailRetryCount(finalFailRetryCount);
+        jobLogDO.setTriggerTime(new Date());
+        jobLogDO.setTriggerCode(triggerResult.getCode());
+        jobLogDO.setTriggerMsg(triggerMsgSb.toString());
+        RaincJobAdminConfig.getAdminConfig().getJobLogRepository().saveAndFlush(jobLogDO);
+        log.debug(">>>>>>>>>>> rainc-job trigger end, jobId:{}", jobLogDO.getId());
+    }
+
+    /**
+     * 运行执行器
+     *
+     * @param triggerParam
+     * @param executorInfo
+     * @return
+     */
+    public static ReturnT<String> runExecutor(TriggerParam triggerParam, ExecutorInfo executorInfo) {
+        ReturnT<String> runResult = null;
+        try {
+            runResult = executorInfo.getExecutorBiz().run(triggerParam);
+        } catch (Exception e) {
+            log.error(">>>>>>>>>>> rainc-job trigger error, please check if the executor[{}] is running.", executorInfo, e);
+            runResult = new ReturnT<String>(ReturnT.FAIL_CODE, ExceptionUtil.getMessage(e));
+        }
         StringBuffer runResultSB = new StringBuffer("Trigger Job:");
-        runResultSB.append("<br>address:").append(address);
+        runResultSB.append("<br>address:").append(executorInfo.getAddress());
         runResultSB.append("<br>code:").append(runResult.getCode());
         runResultSB.append("<br>msg:").append(runResult.getMsg());
 

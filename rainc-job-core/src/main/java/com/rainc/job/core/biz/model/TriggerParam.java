@@ -17,9 +17,35 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class TriggerParam implements Serializable {
     private static final long serialVersionUID = 1;
-    private int jobId;
-
+    /**
+     * 触发任务的id
+     */
+    private long jobId;
+    /**
+     * 执行器handler
+     */
     private String executorHandler;
+    /**
+     * 执行器参数
+     */
     private String executorParams;
+
+    /**
+     * 阻塞策略
+     */
+    private String executorBlockStrategy;
+
+    /**
+     * 执行器超时时间
+     */
     private int executorTimeout;
+    /**
+     * 日志id
+     */
+    private long logId;
+    /**
+     * 日志时间
+     */
+    private long logDateTime;
+
 }
