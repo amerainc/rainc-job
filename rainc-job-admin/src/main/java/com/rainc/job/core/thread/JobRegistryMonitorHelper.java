@@ -1,17 +1,22 @@
 package com.rainc.job.core.thread;
 
+import com.rainc.job.core.config.RaincJobAdminConfig;
 import com.rainc.job.core.enums.RegistryConfig;
 import com.rainc.job.core.model.AppInfo;
 import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.core.scheduler.RaincJobScheduler;
+import com.rainc.job.model.JobRegistryDO;
+import com.rainc.job.util.MyDateUtil;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * 执行器注册监听线程
+ *
  * @Author rainc
  * @create 2020/12/12 20:24
  */
@@ -32,9 +37,15 @@ public class JobRegistryMonitorHelper {
             while (!toStop) {
                 try {
 
-                    Collection<AppInfo> allAppInfo = RaincJobScheduler.getAllAppInfo();
                     Date nowTime = new Date();
-                    //移除所有失效执行器
+                    //删除数据库过期执行器
+                    List<JobRegistryDO> idl = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository()
+                            .findAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
+                    if (idl.size() > 0) {
+                        RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().deleteAll(idl);
+                    }
+                    //删除缓存中失效执行器
+                    Collection<AppInfo> allAppInfo = RaincJobScheduler.getAllAppInfo();
                     for (AppInfo appInfo : allAppInfo) {
                         Collection<ExecutorInfo> executorInfos = appInfo.getAddressMap().values();
                         for (ExecutorInfo executorInfo : executorInfos) {

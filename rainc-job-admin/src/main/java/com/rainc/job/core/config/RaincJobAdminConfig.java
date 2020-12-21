@@ -9,6 +9,7 @@ import com.rainc.job.core.scheduler.RaincJobScheduler;
 import com.rainc.job.respository.JobGroupRepository;
 import com.rainc.job.respository.JobInfoRepository;
 import com.rainc.job.respository.JobLogRepository;
+import com.rainc.job.respository.JobRegistryRepository;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
@@ -55,6 +56,10 @@ public class RaincJobAdminConfig implements InitializingBean, DisposableBean {
     @Resource
     @Getter
     JobLogRepository jobLogRepository;
+
+    @Resource
+    @Getter
+    JobRegistryRepository jobRegistryRepository;
 
 
 

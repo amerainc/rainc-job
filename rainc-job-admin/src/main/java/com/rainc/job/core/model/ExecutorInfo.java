@@ -20,10 +20,6 @@ import java.util.Date;
 @AllArgsConstructor
 public class ExecutorInfo {
     /**
-     * 应用名称
-     */
-    private String appName;
-    /**
      * 执行器地址
      */
     private String address;

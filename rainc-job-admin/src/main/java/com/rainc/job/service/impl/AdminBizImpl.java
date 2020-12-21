@@ -6,7 +6,9 @@ import com.rainc.job.core.biz.model.RegistryParam;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.scheduler.RaincJobScheduler;
 import com.rainc.job.model.JobLogDO;
+import com.rainc.job.model.JobRegistryDO;
 import com.rainc.job.respository.JobLogRepository;
+import com.rainc.job.respository.JobRegistryRepository;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -25,6 +27,8 @@ import java.util.Optional;
 public class AdminBizImpl implements AdminBiz {
     @Resource
     JobLogRepository jobLogRepository;
+    @Resource
+    JobRegistryRepository jobRegistryRepository;
 
     /**
      * 注册执行器具体实现
@@ -39,6 +43,18 @@ public class AdminBizImpl implements AdminBiz {
                 || !StringUtils.hasText(registryParam.getAppName())) {
             return new ReturnT<>(ReturnT.FAIL_CODE, "非法参数");
         }
+
+        JobRegistryDO jobRegistryDO = jobRegistryRepository.findByAddress(registryParam.getAddress());
+        if (jobRegistryDO != null) {
+            jobRegistryDO.setUpdateTime(new Date());
+        } else {
+            jobRegistryDO = new JobRegistryDO();
+            jobRegistryDO.setAddress(registryParam.getAddress());
+            jobRegistryDO.setAppName(registryParam.getAppName());
+            jobRegistryDO.setUpdateTime(new Date());
+        }
+        //存储至数据库
+        jobRegistryRepository.save(jobRegistryDO);
         //存储注册信息至appInfoRepository
         RaincJobScheduler.registerExecutor(registryParam.getAppName(), registryParam.getAddress(), true);
         return ReturnT.SUCCESS;
@@ -74,6 +90,7 @@ public class AdminBizImpl implements AdminBiz {
 
     /**
      * 回调任务
+     *
      * @param handleCallbackParam
      * @return
      */

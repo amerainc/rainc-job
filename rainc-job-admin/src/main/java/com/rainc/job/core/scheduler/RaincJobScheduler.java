@@ -8,6 +8,7 @@ import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.core.thread.JobRegistryMonitorHelper;
 import com.rainc.job.core.thread.JobSchedulerHelper;
 import com.rainc.job.core.thread.JobTriggerPoolHelper;
+import com.rainc.job.model.JobRegistryDO;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Collection;
@@ -29,6 +30,7 @@ public class RaincJobScheduler {
         JobRegistryMonitorHelper.getInstance().start();
         JobTriggerPoolHelper.toStart();
         JobSchedulerHelper.getInstance().start();
+        initAppInfoRepository();
     }
 
     /**
@@ -44,6 +46,17 @@ public class RaincJobScheduler {
     //-----------------------------------appInfoRepository----------------------------
 
     private static final ConcurrentHashMap<String, AppInfo> appInfoRepository = new ConcurrentHashMap<>();
+
+    private static void initAppInfoRepository() {
+        List<JobRegistryDO> list = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().findAll();
+        if (list.size() > 0) {
+            for (JobRegistryDO jobRegistryDO : list) {
+                registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAppName(), true);
+            }
+        }
+
+    }
+
 
     /**
      * 注册执行器
