@@ -12,5 +12,8 @@ import java.util.List;
  */
 public interface JobRegistryRepository extends JpaRepository<JobRegistryDO, Long> {
     JobRegistryDO findByAddress(String address);
+
     List<JobRegistryDO> findAllByUpdateTimeBefore(Date date);
+
+    int deleteByAddress(String address);
 }

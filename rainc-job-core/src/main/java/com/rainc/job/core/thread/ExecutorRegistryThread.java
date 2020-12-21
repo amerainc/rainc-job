@@ -25,7 +25,7 @@ public class ExecutorRegistryThread {
     private volatile boolean toStop = false;
 
     public void start(final String appname, final String address) {
-        // valid
+        // 验证
         if (appname == null || appname.trim().length() == 0) {
             log.warn(">>>>>>>>>>> rainc-job, executor registry config fail, appname is null.");
             return;
@@ -56,7 +56,7 @@ public class ExecutorRegistryThread {
                     }
                 }
 
-                //sleep
+                //睡眠
                 try {
                     if (!toStop) {
                         TimeUnit.SECONDS.sleep(RegistryConfig.BEAT_TIMEOUT);
@@ -69,7 +69,7 @@ public class ExecutorRegistryThread {
             }
 
 
-            // registry remove
+            // 移除注册
             try {
                 RegistryParam registryParam = new RegistryParam(appname, address);
                 for (AdminBiz adminBiz : RaincJobExecutor.getAdminBizList()) {

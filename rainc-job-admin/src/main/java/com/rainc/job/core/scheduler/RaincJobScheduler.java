@@ -47,6 +47,9 @@ public class RaincJobScheduler {
 
     private static final ConcurrentHashMap<String, AppInfo> appInfoRepository = new ConcurrentHashMap<>();
 
+    /**
+     * 初始化
+     */
     private static void initAppInfoRepository() {
         List<JobRegistryDO> list = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().findAll();
         if (list.size() > 0) {

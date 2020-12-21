@@ -72,6 +72,8 @@ public class AdminBizImpl implements AdminBiz {
                 || !StringUtils.hasText(registryParam.getAppName())) {
             return new ReturnT<>(ReturnT.FAIL_CODE, "非法参数");
         }
+        //从数据库中移除
+        jobRegistryRepository.deleteByAddress(registryParam.getAddress());
         //从appInfoRepository中移除该执行器
         RaincJobScheduler.removeExecutor(registryParam.getAppName(), registryParam.getAddress());
         return ReturnT.SUCCESS;
