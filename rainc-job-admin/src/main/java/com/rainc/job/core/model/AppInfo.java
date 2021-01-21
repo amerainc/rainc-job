@@ -2,6 +2,7 @@ package com.rainc.job.core.model;
 
 import lombok.Data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -12,7 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @create 2020/12/11 20:59
  */
 @Data
-public class AppInfo {
+public class AppInfo implements Serializable {
+    private static final long serialVersionUID = 1;
     /**
      * 应用名称
      */

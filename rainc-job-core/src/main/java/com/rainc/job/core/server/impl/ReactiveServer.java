@@ -1,10 +1,12 @@
 package com.rainc.job.core.server.impl;
 
 
+import cn.hutool.core.util.StrUtil;
 import com.rainc.job.core.biz.ExecutorBiz;
 import com.rainc.job.core.biz.impl.ExecutorBizImpl;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import com.rainc.job.core.enums.AdminBizConfig;
 import com.rainc.job.core.server.AbstractServer;
 import com.rainc.job.core.thread.ExecutorRegistryThread;
 import lombok.extern.log4j.Log4j2;
@@ -16,11 +18,12 @@ import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
 import reactor.netty.http.server.HttpServer;
 
-
 import java.util.List;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.*;
-import static org.springframework.web.reactive.function.server.RouterFunctions.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import static org.springframework.web.reactive.function.server.RouterFunctions.toHttpHandler;
 
 /**
  * @Author rainc
@@ -36,7 +39,7 @@ public class ReactiveServer extends AbstractServer {
             DisposableServer disposableServer = null;
             try {
                 //创建服务器
-                ReactorHttpHandlerAdapter reactorHttpHandlerAdapter = new ReactorHttpHandlerAdapter(toHttpHandler(router()));
+                ReactorHttpHandlerAdapter reactorHttpHandlerAdapter = new ReactorHttpHandlerAdapter(toHttpHandler(router(accessToken)));
                 disposableServer = HttpServer.create()
                         .handle(reactorHttpHandlerAdapter)
                         .port(port)
@@ -77,10 +80,22 @@ public class ReactiveServer extends AbstractServer {
         stopRegistry();
     }
 
-    public RouterFunction<ServerResponse> router() {
+    public RouterFunction<ServerResponse> router(String accessToken) {
         ServerHandler serverHandler = new ServerHandler();
         return route(GET("/handlers"), serverHandler::jobHandlers)
-                .andRoute(POST("/run"), serverHandler::run);
+                .andRoute(POST("/run"), serverHandler::run)
+                .andRoute(GET("/kill/{id}"), serverHandler::kill)
+                //accessToken拦截
+                .filter((request, next) -> {
+                    if (StrUtil.isBlank(accessToken)) {
+                        return next.handle(request);
+                    }
+                    String token = request.headers().firstHeader(AdminBizConfig.XXL_JOB_ACCESS_TOKEN);
+                    if (accessToken.equals(token)) {
+                        return next.handle(request);
+                    }
+                    return ServerResponse.ok().bodyValue(new ReturnT<String>(ReturnT.FAIL_CODE, "access token错误"));
+                });
     }
 
 
@@ -103,6 +118,13 @@ public class ReactiveServer extends AbstractServer {
             return triggerParamMono
                     .map(executorBiz::run)
                     .flatMap((returnT -> ServerResponse.ok().bodyValue(returnT)));
+        }
+
+
+        public Mono<ServerResponse> kill(ServerRequest request) {
+            String id = request.pathVariable("id");
+            Mono<ReturnT<String>> killMono = Mono.create((t) -> t.success(executorBiz.kill(Long.parseLong(id))));
+            return ServerResponse.ok().body(killMono, ReturnT.class);
         }
     }
 

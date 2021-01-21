@@ -78,4 +78,14 @@ public class ExecutorBizImpl implements ExecutorBiz {
     public ReturnT<String> beat() {
         return ReturnT.SUCCESS;
     }
+
+    @Override
+    public ReturnT<String> kill(long id) {
+        JobThread jobThread = RaincJobExecutor.loadJobThread(id);
+        if (jobThread != null) {
+            RaincJobExecutor.removeJobThread(id, "scheduling center kill job.");
+            return ReturnT.SUCCESS;
+        }
+        return new ReturnT<>(ReturnT.SUCCESS_CODE, "job thread already killed.");
+    }
 }

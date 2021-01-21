@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Log4j2
 public class TaskCallbackThread {
-    private static TaskCallbackThread instance = new TaskCallbackThread();
+    private static final TaskCallbackThread instance = new TaskCallbackThread();
 
     public static TaskCallbackThread getInstance() {
         return instance;
@@ -27,8 +27,13 @@ public class TaskCallbackThread {
     /**
      * 任务回调队列
      */
-    private LinkedBlockingQueue<HandleCallbackParam> callBackQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<HandleCallbackParam> callBackQueue = new LinkedBlockingQueue<>();
 
+    /**
+     * 放置回调任务进队列
+     *
+     * @param callback 回调参数
+     */
     public static void pushCallBack(HandleCallbackParam callback) {
         TaskCallbackThread.getInstance().callBackQueue.add(callback);
         log.debug(">>>>>>>>>>> rainc-job, push callback request, logId:{}", callback.getLogId());
@@ -41,7 +46,7 @@ public class TaskCallbackThread {
     private volatile boolean toStop = false;
 
     public void start() {
-        // valid
+        // 验证
         if (RaincJobExecutor.getAdminBizList() == null) {
             log.warn(">>>>>>>>>>> rainc-job, executor callback config fail, adminAddresses is null.");
             return;
@@ -112,7 +117,7 @@ public class TaskCallbackThread {
             try {
                 ReturnT<String> callbackResult = adminBiz.callback(callbackParamList);
                 if (callbackResult != null && ReturnT.SUCCESS_CODE == callbackResult.getCode()) {
-                    log.debug(">>>>>> rainc-job log callback finish{}",callbackParamList);
+                    log.debug(">>>>>> rainc-job log callback finish{}", callbackParamList);
                     //callbackLog(callbackParamList, "<br>----------- xxl-job job callback finish.");
                     //callbackRet = true;
                     break;

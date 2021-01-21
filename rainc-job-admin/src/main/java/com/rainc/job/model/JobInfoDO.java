@@ -1,11 +1,14 @@
 package com.rainc.job.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
@@ -15,6 +18,7 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "rainc_job_info")
 public class JobInfoDO {
@@ -26,24 +30,33 @@ public class JobInfoDO {
     /**
      * 执行器分组主键
      */
+    @NotNull(message = "请选择执行器")
     private Long jobGroup;
 
     /**
      * 任务执行CRON
      */
+    @NotBlank(message = "请输入cron表达式")
     private String jobCron;
 
     /**
-     * 任务说明
+     * 任务描述
      */
+    @NotBlank(message = "请输入任务描述")
     private String jobDesc;
-
+    /**
+     * 创建时间
+     */
     private Date addTime;
+    /**
+     * 修改时间
+     */
     private Date upDateTime;
 
     /**
-     * 作者
+     * 负责人
      */
+    @NotBlank(message = "请输入负责人")
     private String author;
 
     /**
@@ -54,11 +67,13 @@ public class JobInfoDO {
     /**
      * 路由策略
      */
+    @NotBlank(message = "请选择路由策略")
     private String executorRouteStrategy;
 
     /**
      * 执行器任务handler
      */
+    @NotBlank(message = "选择handler")
     private String executorHandler;
 
     /**
@@ -70,6 +85,7 @@ public class JobInfoDO {
     /**
      * 阻塞策略
      */
+    @NotBlank(message = "请选择阻塞策略")
     private String executorBlockStrategy;
 
     /**

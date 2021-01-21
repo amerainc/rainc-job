@@ -1,10 +1,10 @@
 package com.rainc.job.respository;
 
 import com.rainc.job.model.JobGroupDO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 /**
  * @Author rainc
@@ -12,4 +12,5 @@ import java.util.List;
  */
 @Repository
 public interface JobGroupRepository extends JpaRepository<JobGroupDO, Long> {
+    Page<JobGroupDO> findAllByAppNameLikeAndTitleLike(String appName, String title, Pageable pageable);
 }

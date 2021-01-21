@@ -13,11 +13,11 @@ public enum ExecutorRouteStrategyEnum {
     /**
      * 第一个
      */
-    FIRST("First", new ExecutorRouteFirst()),
+    FIRST("第一个", new ExecutorRouteFirst()),
     /**
-     * 第二个
+     * 轮询
      */
-    ROUND("Round", new ExecutorRouteRound());
+    ROUND("轮询", new ExecutorRouteRound());
 
 
     private String title;

@@ -5,10 +5,9 @@ import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.config.RaincJobAdminConfig;
 import com.rainc.job.core.model.AppInfo;
 import com.rainc.job.core.model.ExecutorInfo;
-import com.rainc.job.core.thread.JobRegistryMonitorHelper;
-import com.rainc.job.core.thread.JobSchedulerHelper;
-import com.rainc.job.core.thread.JobTriggerPoolHelper;
+import com.rainc.job.core.thread.*;
 import com.rainc.job.model.JobRegistryDO;
+import com.rainc.job.util.MyDateUtil;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.Collection;
@@ -29,7 +28,9 @@ public class RaincJobScheduler {
     public void init() {
         JobRegistryMonitorHelper.getInstance().start();
         JobTriggerPoolHelper.toStart();
-        JobSchedulerHelper.getInstance().start();
+        JobScheduleHelper.getInstance().start();
+        JobFailMonitorHelper.getInstance().start();
+        JobLogReportHelper.getInstance().start();
         initAppInfoRepository();
     }
 
@@ -39,7 +40,9 @@ public class RaincJobScheduler {
     public void destroy() {
         JobRegistryMonitorHelper.getInstance().toStop();
         JobTriggerPoolHelper.toStop();
-        JobSchedulerHelper.getInstance().stop();
+        JobScheduleHelper.getInstance().toStop();
+        JobFailMonitorHelper.getInstance().toStop();
+        JobLogReportHelper.getInstance().toStop();
     }
 
 
@@ -51,13 +54,20 @@ public class RaincJobScheduler {
      * 初始化
      */
     private static void initAppInfoRepository() {
+        Date nowTime = new Date();
+        //删除数据库过期执行器
+        List<JobRegistryDO> idl = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository()
+                .findAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
+        if (idl.size() > 0) {
+            RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().deleteAll(idl);
+        }
+        //初始化执行器缓存
         List<JobRegistryDO> list = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().findAll();
         if (list.size() > 0) {
             for (JobRegistryDO jobRegistryDO : list) {
                 registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAppName(), true);
             }
         }
-
     }
 
 

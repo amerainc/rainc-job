@@ -1,8 +1,6 @@
 ### web
 server:
-  port: 8081
-  servlet:
-    context-path: /rainc-job-admin
+  port: 8082
 
 ### datasource-pool
 spring:
@@ -23,20 +21,37 @@ spring:
       connection-test-query: SELECT 1
       validation-timeout: 1000
 
+
   ### jpa
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+  mail:
+    host: smtp.qq.com
+    port: 25
+    username: 1123015515@qq.com
+    password: buvgjlcotupbgiab
+    properties:
+      mail:
+        stmp:
+          auth: true
+          starttls.enable: true
+          starttls.required: true
+          socketFactory.class: javax.net.ssl.SSLSocketFactory
 
 
-#logging:
+
 rainc:
   job:
     admin:
       trigger-pool-fast-max: 200
       trigger-pool-slow-max: 100
-
+      jwt:
+        expire: 604800
+        secret: f4e2e52034348f86b67cde581c0f9eb5
+      access-token: aaaa
+#logging:
 logging:
   level:
     root: info

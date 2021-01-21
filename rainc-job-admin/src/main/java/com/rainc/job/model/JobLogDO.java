@@ -82,7 +82,7 @@ public class JobLogDO {
     private String handleMsg;
 
     /**
-     * 告警状态
+     * 告警状态 0-无状态 1-无需告警 2-告警成功 3-告警失败
      */
-    private Short alarmStatus;
+    private Integer alarmStatus;
 }

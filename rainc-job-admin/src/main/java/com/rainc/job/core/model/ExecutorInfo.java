@@ -1,11 +1,9 @@
 package com.rainc.job.core.model;
 
 import com.rainc.job.core.biz.ExecutorBiz;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -18,7 +16,9 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExecutorInfo {
+@EqualsAndHashCode(of = {"address"})
+public class ExecutorInfo implements Serializable {
+    private static final long serialVersionUID = 1;
     /**
      * 执行器地址
      */

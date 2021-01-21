@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
  * @create 2020/11/1 12:44
  */
 @Log4j2
-public class JobSchedulerHelper {
-    private static JobSchedulerHelper instance = new JobSchedulerHelper();
+public class JobScheduleHelper {
+    private static JobScheduleHelper instance = new JobScheduleHelper();
     //预读时常
     public static final long PRE_READ_MS = 5000;
 
-    public static JobSchedulerHelper getInstance() {
+    public static JobScheduleHelper getInstance() {
         return instance;
     }
 
@@ -64,6 +64,7 @@ public class JobSchedulerHelper {
                     List<JobInfoDO> jobInfoDOList = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
                             .findAllByTriggerNextTimeIsLessThanAndTriggerStatusTrue(nowTime + PRE_READ_MS, preReadPageReq);
                     if (jobInfoDOList.size() > 0) {
+                        //TimeInterval timer = DateUtil.timer();
                         for (JobInfoDO jobInfoDO : jobInfoDOList) {
                             //1.保存旧时间
                             long oldTriggerNextTime = jobInfoDO.getTriggerNextTime();
@@ -71,10 +72,13 @@ public class JobSchedulerHelper {
                                 //2.计算新时间
                                 refreshNextValidTime(jobInfoDO, new Date());
                                 //如果时间未变动则更新成功
-                                int i = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
+                                int lockRet = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
                                         .upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
+                                if (lockRet < 1) {
+                                    continue;
+                                }
                                 //如果是5秒内的任务,而且写入时间成功
-                                if (oldTriggerNextTime > nowTime - PRE_READ_MS && i > 0) {
+                                if (oldTriggerNextTime > nowTime - PRE_READ_MS) {
                                     //立即触发任务
                                     JobTriggerPoolHelper.trigger(jobInfoDO.getId(), TriggerTypeEnum.CRON, -1, null, null, null);
                                     if (nowTime + PRE_READ_MS > jobInfoDO.getTriggerNextTime()) {
@@ -84,27 +88,29 @@ public class JobSchedulerHelper {
                                         //2.创建新时间
                                         refreshNextValidTime(jobInfoDO, new Date(oldTriggerNextTime));
                                         //3.尝试写入时间
-                                        i = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
+                                        lockRet = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
                                                 .upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
                                         //写入成功则放入时间环进行时间调度
-                                        if (i > 0) {
-                                            pushRing(jobInfoDO, oldTriggerNextTime);
+                                        if (lockRet < 1) {
+                                            continue;
                                         }
+                                        pushRing(jobInfoDO, oldTriggerNextTime);
+
                                     }
                                 }
                             } else {
+                                //2.计算新时间
                                 refreshNextValidTime(jobInfoDO, new Date(oldTriggerNextTime));
-                                int i = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
-                                //直接放入时间环并更新时间
-                                if (i > 0) {
-                                    pushRing(jobInfoDO, oldTriggerNextTime);
+                                int lockRet = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
+                                //3.直接放入时间环并更新时间
+                                if (lockRet < 1) {
+                                    continue;
                                 }
+                                pushRing(jobInfoDO, oldTriggerNextTime);
+
                             }
                         }
-                        ////更新任务信息
-                        //for (JobInfoDO jobInfoDO : jobInfoDOList) {
-                        //    RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().save(jobInfoDO);
-                        //}
+                        //log.info(">>>>>>>> rainc-job cost time={}", timer.interval());
                     } else {
                         preSuc = false;
                     }
@@ -202,7 +208,7 @@ public class JobSchedulerHelper {
 
     }
 
-    public void stop() {
+    public void toStop() {
         scheduleThreadToStop = true;
         ringThreadToStop = true;
         //中断两个线程
@@ -220,8 +226,8 @@ public class JobSchedulerHelper {
     /**
      * 计算下一次的触发时间
      *
-     * @param jobInfo
-     * @param fromTime
+     * @param jobInfo  计算的任务
+     * @param fromTime 计算的时间
      * @throws ParseException
      */
     private void refreshNextValidTime(JobInfoDO jobInfo, Date fromTime) throws ParseException {
@@ -239,15 +245,11 @@ public class JobSchedulerHelper {
     /**
      * 将任务放进时间环
      *
-     * @param ringSecond
-     * @param jobId
+     * @param ringSecond 时间环分钟位
+     * @param jobId      任务id
      */
     private void pushTimeRing(int ringSecond, long jobId) {
-        List<Long> ringItemData = ringData.get(ringSecond);
-        if (ringItemData == null) {
-            ringItemData = new ArrayList<>();
-            ringData.put(ringSecond, ringItemData);
-        }
+        List<Long> ringItemData = ringData.computeIfAbsent(ringSecond, ArrayList::new);
         ringItemData.add(jobId);
 
         log.debug(">>>>>>>>>>> rainc-job, schedule push time-ring : " + ringSecond + " = " + ringItemData);

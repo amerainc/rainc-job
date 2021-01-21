@@ -7,13 +7,8 @@ import com.rainc.job.core.executor.RaincJobExecutor;
 import com.rainc.job.core.handler.IJobHandler;
 import lombok.extern.log4j.Log4j2;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @Author rainc
@@ -24,19 +19,19 @@ public class JobThread extends Thread {
     /**
      * 任务id
      */
-    private long jobId;
+    private final long jobId;
     /**
      * 任务handler
      */
-    private IJobHandler handler;
+    private final IJobHandler handler;
     /**
      * 触发队列
      */
-    private LinkedBlockingQueue<TriggerParam> triggerQueue;
+    private final LinkedBlockingQueue<TriggerParam> triggerQueue;
     /**
      * 存储日志id避免重复触发对象
      */
-    private Set<Long> triggerLogIdSet;
+    private final Set<Long> triggerLogIdSet;
 
     private volatile boolean toStop = false;
     /**
@@ -49,7 +44,7 @@ public class JobThread extends Thread {
     private boolean running = false;
     Future<Boolean> future = null;
     private boolean isConcurrent;
-    private Set<Future<Boolean>> concurrentTaskSet;
+    private Map<TriggerParam, Future<Boolean>> concurrentTaskMap;
     private Semaphore semaphore;
 
 
@@ -67,11 +62,11 @@ public class JobThread extends Thread {
 
     public void setConcurrent(boolean isConcurrent) {
         this.isConcurrent = isConcurrent;
-        if (isConcurrent && concurrentTaskSet == null) {
+        if (isConcurrent && concurrentTaskMap == null) {
             semaphore = null;
-            concurrentTaskSet = Collections.synchronizedSet(new HashSet<>());
+            concurrentTaskMap = new ConcurrentHashMap<>();
         } else if (!isConcurrent) {
-            concurrentTaskSet = null;
+            concurrentTaskMap = null;
             semaphore = new Semaphore(0);
         }
     }
@@ -124,7 +119,7 @@ public class JobThread extends Thread {
      * @return
      */
     public boolean isRunningOrHasQueue() {
-        return running || triggerQueue.size() > 0 || (concurrentTaskSet != null && concurrentTaskSet.size() > 0);
+        return running || triggerQueue.size() > 0 || (concurrentTaskMap != null && concurrentTaskMap.size() > 0);
     }
 
     @Override
@@ -148,9 +143,13 @@ public class JobThread extends Thread {
                         //如果是并发情况
                         //运行任务
                         this.future = TaskPoolHelper.runTask(triggerParam, handler, null);
-                        concurrentTaskSet.add(future);
+                        concurrentTaskMap.put(triggerParam, future);
                         //移除所有已经完成或取消的任务
-                        concurrentTaskSet.removeIf(futureTask -> futureTask.isDone() || futureTask.isCancelled());
+                        concurrentTaskMap.forEach((key, value) -> {
+                            if (value.isDone() || value.isCancelled()) {
+                                concurrentTaskMap.remove(key);
+                            }
+                        });
                     } else {
                         //阻塞情况
                         //运行任务
@@ -161,7 +160,7 @@ public class JobThread extends Thread {
                 } else {
                     if (idleTimes > 30) {
                         //避免并发问题
-                        if (triggerQueue.size() == 0 && (concurrentTaskSet != null && concurrentTaskSet.size() > 0)) {
+                        if (triggerQueue.size() == 0 && (concurrentTaskMap != null && concurrentTaskMap.size() > 0)) {
                             RaincJobExecutor.removeJobThread(jobId, "excutor idel times over limit.");
                         }
                     }
@@ -171,12 +170,29 @@ public class JobThread extends Thread {
             } finally {
                 if (triggerParam != null) {
                     if (toStop) {
-                        ReturnT<String> stopResult = new ReturnT<String>(ReturnT.FAIL_CODE, stopReason + " [job running, killed]");
+                        ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [job running, killed]");
                         TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
                     }
                 }
             }
         }
 
+        while (triggerQueue != null && triggerQueue.size() > 0) {
+            TriggerParam triggerParam = triggerQueue.poll();
+            if (triggerParam != null) {
+                // is killed
+                ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [job not executed, in the job queue, killed.]");
+                TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
+            }
+        }
+        if (concurrentTaskMap != null && concurrentTaskMap.size() > 0) {
+            concurrentTaskMap.forEach((key, value) -> {
+                if (!value.isDone()) {
+                    value.cancel(true);
+                    ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [job running, killed]");
+                    TaskCallbackThread.pushCallBack(new HandleCallbackParam(key.getLogId(), key.getLogDateTime(), stopResult));
+                }
+            });
+        }
     }
 }

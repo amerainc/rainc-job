@@ -5,16 +5,15 @@ package com.rainc.job.core.config;
  * @create 2020/12/11 21:36
  */
 
+import com.rainc.job.core.alarm.JobAlarmer;
 import com.rainc.job.core.scheduler.RaincJobScheduler;
-import com.rainc.job.respository.JobGroupRepository;
-import com.rainc.job.respository.JobInfoRepository;
-import com.rainc.job.respository.JobLogRepository;
-import com.rainc.job.respository.JobRegistryRepository;
+import com.rainc.job.respository.*;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.annotation.Resource;
 
@@ -59,13 +58,24 @@ public class RaincJobAdminConfig implements InitializingBean, DisposableBean {
 
     @Resource
     @Getter
+    JobLogReportRepository jobLogReportRepository;
+
+    @Resource
+    @Getter
     JobRegistryRepository jobRegistryRepository;
 
+    @Resource
+    @Getter
+    private JavaMailSender mailSender;
 
+    @Resource
+    @Getter
+    private JobAlarmer jobAlarmer;
 
     //------------------------properties----------------------------
 
     @Resource
+    @Getter
     AdminProperties adminProperties;
 
     public String getAccessToken() {

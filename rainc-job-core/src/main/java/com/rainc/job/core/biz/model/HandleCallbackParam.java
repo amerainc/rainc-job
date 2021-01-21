@@ -8,6 +8,7 @@ import java.io.Serializable;
 
 /**
  * handle回调参数
+ *
  * @Author rainc
  * @create 2020/12/20 10:46
  */
@@ -18,6 +19,5 @@ public class HandleCallbackParam implements Serializable {
     private static final long serialVersionUID = 1;
     private long logId;
     private long logDateTime;
-
     private ReturnT<String> executeResult;
 }

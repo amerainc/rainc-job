@@ -26,7 +26,7 @@ public interface JobInfoRepository extends JpaRepository<JobInfoDO, Long> {
     List<JobInfoDO> findAllByTriggerNextTimeIsLessThanAndTriggerStatusTrue(long maxNextTime, Pageable pageable);
 
     /**
-     * CAS无锁算法，由于触发时间唯一，不会发生ABA问题
+     * cas锁，锁本次任务
      *
      * @param jobId              任务id
      * @param oldTriggerNextTime 旧触发时间
@@ -37,4 +37,7 @@ public interface JobInfoRepository extends JpaRepository<JobInfoDO, Long> {
     @Transactional
     @Query(value = "update JobInfoDO set triggerNextTime=?3,triggerLastTime=?2 where triggerNextTime=?2 and id=?1")
     int upDateNextTriggerTime(long jobId, long oldTriggerNextTime, long newTriggerNextTime);
+
+    List<JobInfoDO> findAllByJobGroup(long jobGroup);
+
 }

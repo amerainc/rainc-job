@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.*;
 
 /**
@@ -31,15 +32,17 @@ public class TaskPoolHelper {
     }
 
     /**
-     * 添加
+     * 添加任务
      *
-     * @param triggerParam
-     * @param handler
+     * @param triggerParam 任务触发参数
+     * @param handler      任务执行者
+     * @param semaphore    信号量
      * @return
      */
     private Future<Boolean> addTask(TriggerParam triggerParam, IJobHandler handler, Semaphore semaphore) {
         //如果有锁和条件，表示阻塞任务
         FutureTask<Boolean> task = new FutureTask<>(() -> {
+            boolean isCancel = false;
             ReturnT<String> executeResult = null;
             try {
                 if (triggerParam.getExecutorTimeout() > 0) {
@@ -58,7 +61,7 @@ public class TaskPoolHelper {
                     }
                 } else {
                     //直接执行
-                    handler.execute(triggerParam.getExecutorParams());
+                    executeResult = handler.execute(triggerParam.getExecutorParams());
                 }
 
                 if (executeResult == null) {
@@ -71,15 +74,27 @@ public class TaskPoolHelper {
                     executeResult.setContent(null);    // limit obj size
                 }
             } catch (Exception e) {
-                StringWriter stringWriter = new StringWriter();
-                e.printStackTrace(new PrintWriter(stringWriter));
-                String errorMsg = stringWriter.toString();
-                executeResult = new ReturnT<>(ReturnT.FAIL_CODE, errorMsg);
-                e.printStackTrace();
+                if (e instanceof InvocationTargetException) {
+                    e = (Exception) ((InvocationTargetException) e).getTargetException();
+                    if (e instanceof InterruptedException) {
+                        isCancel = true;
+                    }
+                }
+                if (!isCancel) {
+                    StringWriter stringWriter = new StringWriter();
+                    e.printStackTrace(new PrintWriter(stringWriter));
+                    String errorMsg = stringWriter.toString();
+                    executeResult = new ReturnT<>(ReturnT.FAIL_CODE, errorMsg);
+                    e.printStackTrace();
+                }
+                return false;
             } finally {
-                HandleCallbackParam handleCallbackParam = new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), executeResult);
-                TaskCallbackThread.pushCallBack(handleCallbackParam);
-
+                if (!isCancel) {
+                    //进行回调
+                    HandleCallbackParam handleCallbackParam = new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), executeResult);
+                    TaskCallbackThread.pushCallBack(handleCallbackParam);
+                }
+                //如果是阻塞任务，则通知阻塞线程。
                 if (semaphore != null) {
                     semaphore.release();
                 }
@@ -89,6 +104,7 @@ public class TaskPoolHelper {
         taskPool.submit(task);
         return task;
     }
+
 
     public void stop() {
         taskPool.shutdownNow();
@@ -103,6 +119,14 @@ public class TaskPoolHelper {
         helper.stop();
     }
 
+    /**
+     * 运行任务
+     *
+     * @param triggerParam
+     * @param handler
+     * @param semaphore
+     * @return
+     */
     public static Future<Boolean> runTask(TriggerParam triggerParam, IJobHandler handler, Semaphore semaphore) {
         return helper.addTask(triggerParam, handler, semaphore);
     }

@@ -8,7 +8,7 @@ import com.rainc.job.core.thread.JobThread;
 import com.rainc.job.core.thread.TaskCallbackThread;
 import com.rainc.job.core.thread.TaskPoolHelper;
 import com.rainc.job.core.util.IpUtil;
-import com.rainc.job.core.util.NetUtil;
+import com.rainc.job.core.util.MyNetUtil;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j2;
 
@@ -79,7 +79,7 @@ public class RaincJobExecutor {
     private ReactiveServer reactiveServer;
 
     private void initServer(String address, String ip, int port, String appname, String accessToken) {
-        port = port > 0 ? port : NetUtil.findAvailablePort(9999);
+        port = port > 0 ? port : MyNetUtil.findAvailablePort(9999);
         ip = (ip != null && ip.trim().length() > 0) ? ip : IpUtil.getIp();
 
         if (address == null || address.trim().length() == 0) {

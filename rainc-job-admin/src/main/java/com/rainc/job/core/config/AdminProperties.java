@@ -16,9 +16,13 @@ public class AdminProperties {
     /**
      * 快线程
      */
-    private int triggerPoolFastMax;
+    private int triggerPoolFastMax = 200;
     /**
      * 慢线程
      */
-    private int triggerPoolSlowMax;
+    private int triggerPoolSlowMax = 100;
+    /**
+     * 日志 保留天数
+     */
+    private int logretentiondays = 30;
 }

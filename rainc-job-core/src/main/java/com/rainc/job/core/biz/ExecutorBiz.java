@@ -2,6 +2,7 @@ package com.rainc.job.core.biz;
 
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import feign.Param;
 import feign.RequestLine;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 public interface ExecutorBiz {
     /**
      * 获取所有handler信息
+     *
      * @return
      */
     @RequestLine("GET /handlers")
@@ -20,6 +22,7 @@ public interface ExecutorBiz {
 
     /**
      * 触发任务
+     *
      * @param triggerParam
      * @return
      */
@@ -28,8 +31,17 @@ public interface ExecutorBiz {
 
     /**
      * 心跳检测
+     *
      * @return
      */
     @RequestLine("GET /beat")
     ReturnT<String> beat();
+
+    /**
+     * 杀死任务
+     *
+     * @return
+     */
+    @RequestLine("GET /kill/{id}")
+    ReturnT<String> kill(@Param("id") long id);
 }

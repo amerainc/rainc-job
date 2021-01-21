@@ -14,26 +14,19 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SampleRaincJob {
     @RaincJob("testHandler")
-    public ReturnT<String> test(String param) {
-        try {
-            LocalTime localTime = LocalTime.now();
-            System.out.println(Thread.currentThread());
-            System.out.println(param + "-时间-" + localTime);
-            try {
-                TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException e) {
-                System.out.println("-----------------------------------中断---------------------------------");
-            }
-        } catch (Exception e) {
-            System.out.println("-----------------------异常-----------------------------");
-        }
+    public ReturnT<String> test(String param) throws Exception {
+        LocalTime localTime = LocalTime.now();
+        System.out.println(Thread.currentThread());
+        System.out.println(param + "-时间-" + localTime);
 
-        return ReturnT.SUCCESS;
+            int i = Integer.parseInt(param);
+            TimeUnit.SECONDS.sleep(i);
+        return new ReturnT<>(200, "测试成功");
     }
 
 
     @RaincJob("mdjcHandler")
-    public ReturnT<String> test2(String param) {
+    public ReturnT<String> test2(String param) throws Exception{
         LocalTime localTime = LocalTime.now();
         System.out.println(param + "-时间-" + localTime);
         return ReturnT.SUCCESS;

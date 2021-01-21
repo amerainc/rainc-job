@@ -94,7 +94,6 @@ public class JobTriggerPoolHelper {
                         timeoutCount.incrementAndGet();
                     }
                 }
-
             }
         });
     }

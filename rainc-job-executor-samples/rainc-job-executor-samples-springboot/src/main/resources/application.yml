@@ -1,6 +1,10 @@
+
 rainc:
   job:
     executor:
-      admin-addresses: http://localhost:8081/rainc-job-admin,http://localhost:8082/rainc-job-admin
+      admin-addresses: http://localhost:8081
       app-name: rainc-job-executor-sample
       task-pool-max: 1000
+      access-token: aaaa
+server:
+  port: 8888

@@ -4,7 +4,7 @@ package com.rainc.job.core.util;
  * @Author rainc
  * @create 2020/12/12 14:16
  */
-public class NetUtil {
+public class MyNetUtil {
     /**
      * find avaliable port
      *

@@ -20,4 +20,26 @@ public class ShardingParam implements Serializable {
      */
     private int index;
     private int total;
+
+    @Override
+    public String toString() {
+        return index + "/" + total;
+    }
+
+    public static ShardingParam parseString(String shardingParam) {
+        String[] shardingArr = shardingParam.split("/");
+        if (shardingArr.length == 2 && isNumeric(shardingArr[0]) && isNumeric(shardingArr[1])) {
+            return new ShardingParam(Integer.parseInt(shardingArr[0]), Integer.parseInt(shardingArr[1]));
+        }
+        return null;
+    }
+
+    private static boolean isNumeric(String str) {
+        try {
+            int result = Integer.valueOf(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

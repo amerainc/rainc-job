@@ -1,6 +1,9 @@
 package com.rainc.job.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -12,6 +15,9 @@ import java.util.Date;
  */
 @Data
 @Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "rainc_job_registry")
 public class JobRegistryDO {
     @Id

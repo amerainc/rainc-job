@@ -125,6 +125,7 @@ public class RaincJobTrigger {
         jobLogDO.setJobId(jobInfo.getId());
         jobLogDO.setTriggerTime(new Date());
         jobLogDO.setHandleCode(0);
+        jobLogDO.setAlarmStatus(0);
         RaincJobAdminConfig.getAdminConfig().getJobLogRepository().saveAndFlush(jobLogDO);
         log.debug(">>>>>>>>>>> rainc-job trigger start, jobId:{}", jobLogDO.getId());
 
@@ -189,7 +190,16 @@ public class RaincJobTrigger {
         jobLogDO.setTriggerTime(new Date());
         jobLogDO.setTriggerCode(triggerResult.getCode());
         jobLogDO.setTriggerMsg(triggerMsgSb.toString());
-        RaincJobAdminConfig.getAdminConfig().getJobLogRepository().saveAndFlush(jobLogDO);
+        RaincJobAdminConfig.getAdminConfig().getJobLogRepository()
+                .upDateTriggerJobLog(jobLogDO.getId(),
+                        jobLogDO.getExecutorAddress(),
+                        jobLogDO.getExecutorHandler(),
+                        jobLogDO.getExecutorParam(),
+                        jobLogDO.getExecutorShardingParam(),
+                        jobLogDO.getExecutorFailRetryCount(),
+                        jobLogDO.getTriggerTime(),
+                        jobLogDO.getTriggerCode(),
+                        jobLogDO.getTriggerMsg());
         log.debug(">>>>>>>>>>> rainc-job trigger end, jobId:{}", jobLogDO.getId());
     }
 

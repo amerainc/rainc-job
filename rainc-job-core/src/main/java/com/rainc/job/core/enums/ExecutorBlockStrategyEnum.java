@@ -10,7 +10,7 @@ public enum ExecutorBlockStrategyEnum {
     /**
      * 连续任务
      */
-    SERIAL_EXECUTION("连续"),
+    SERIAL_EXECUTION("单机串行"),
     /**
      * 并行任务
      */
@@ -18,13 +18,13 @@ public enum ExecutorBlockStrategyEnum {
     /**
      * 抛弃后来
      */
-    DISCARD_LATER("抛弃后来"),
+    DISCARD_LATER("丢弃后续调度"),
     /**
      * 覆盖任务
      */
-    COVER_EARLY("覆盖");
+    COVER_EARLY("覆盖之前调度");
     @Getter
-    private final String title;
+    private  String title;
 
     ExecutorBlockStrategyEnum(String title) {
         this.title = title;

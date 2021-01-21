@@ -4,15 +4,15 @@ public enum TriggerTypeEnum {
     /**
      * 手动触发
      */
-    MANUAL("Manual trigger"),
+    MANUAL("手动触发"),
     /**
      * cron触发
      */
-    CRON("Cron trigger"),
+    CRON("cron触发"),
     /**
      * 失败重新触发
      */
-    RETRY("Fail retry trigger");
+    RETRY("失败重新触发");
 
     private TriggerTypeEnum(String title) {
         this.title = title;
