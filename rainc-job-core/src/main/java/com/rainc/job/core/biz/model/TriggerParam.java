@@ -46,4 +46,8 @@ public class TriggerParam implements Serializable {
      */
     private long logDateTime;
 
+    /**
+     * 分片参数
+     */
+    private ShardingParam shardingParam;
 }

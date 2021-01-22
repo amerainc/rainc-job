@@ -3,6 +3,7 @@ package com.rainc.job.core.thread;
 import com.rainc.job.core.biz.model.HandleCallbackParam;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import com.rainc.job.core.context.RaincJobContext;
 import com.rainc.job.core.handler.IJobHandler;
 import lombok.extern.log4j.Log4j2;
 
@@ -45,9 +46,27 @@ public class TaskPoolHelper {
             boolean isCancel = false;
             ReturnT<String> executeResult = null;
             try {
+                RaincJobContext raincJobContext = new RaincJobContext(
+                        triggerParam.getJobId(),
+                        triggerParam.getExecutorParams(),
+                        triggerParam.getShardingParam()
+                );
+                //设置上下文
+                RaincJobContext.setRaincJobContext(raincJobContext);
                 if (triggerParam.getExecutorTimeout() > 0) {
                     //如果有超时时间则表示超时任务
-                    FutureTask<ReturnT<String>> futureTask = new FutureTask<>(() -> handler.execute(triggerParam.getExecutorParams()));
+                    FutureTask<ReturnT<String>> futureTask = new FutureTask<>(() -> {
+                        //设置上下文
+                        RaincJobContext.setRaincJobContext(raincJobContext);
+                        ReturnT<String> returnT;
+                        try {
+                            returnT = handler.execute(triggerParam.getExecutorParams());
+                        } finally {
+                            //移除上下文
+                            RaincJobContext.removeContext();
+                        }
+                        return returnT;
+                    });
                     taskPool.execute(futureTask);
                     try {
                         //阻塞获取
@@ -94,10 +113,12 @@ public class TaskPoolHelper {
                     HandleCallbackParam handleCallbackParam = new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), executeResult);
                     TaskCallbackThread.pushCallBack(handleCallbackParam);
                 }
-                //如果是阻塞任务，则通知阻塞线程。
+                //如果是阻塞任务，则通知阻塞线程
                 if (semaphore != null) {
                     semaphore.release();
                 }
+                //移除上下文，防止线程池污染
+                RaincJobContext.removeContext();
             }
             return true;
         });

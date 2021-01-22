@@ -17,8 +17,11 @@ public enum ExecutorRouteStrategyEnum {
     /**
      * 轮询
      */
-    ROUND("轮询", new ExecutorRouteRound());
-
+    ROUND("轮询", new ExecutorRouteRound()),
+    /**
+     * 分片
+     */
+    SHARDING_BROADCAST("分片", null);
 
     private String title;
     private ExecutorRouter router;
@@ -28,9 +31,9 @@ public enum ExecutorRouteStrategyEnum {
         this.router = router;
     }
 
-    public static ExecutorRouteStrategyEnum match(String name, ExecutorRouteStrategyEnum defaultItem){
+    public static ExecutorRouteStrategyEnum match(String name, ExecutorRouteStrategyEnum defaultItem) {
         if (name != null) {
-            for (ExecutorRouteStrategyEnum item: ExecutorRouteStrategyEnum.values()) {
+            for (ExecutorRouteStrategyEnum item : ExecutorRouteStrategyEnum.values()) {
                 if (item.name().equals(name)) {
                     return item;
                 }

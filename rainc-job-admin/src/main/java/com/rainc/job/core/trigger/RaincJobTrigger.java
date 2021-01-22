@@ -90,18 +90,20 @@ public class RaincJobTrigger {
             shardingParam.setIndex(executorShardingParam.getIndex());
             shardingParam.setTotal(executorShardingParam.getTotal());
         }
-/*        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
-                && group.getRegistryList() != null && !group.getRegistryList().isEmpty()
+        //如果是分片路由
+        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null)
+                && groupInfo.getExecutorList() != null && !groupInfo.getExecutorList().isEmpty()
                 && shardingParam == null) {
-            for (int i = 0; i < group.getRegistryList().size(); i++) {
-                processTrigger(group, jobInfo, finalFailRetryCount, triggerType, i, group.getRegistryList().size());
+            for (int i = 0; i < groupInfo.getExecutorList().size(); i++) {
+                processTrigger(groupInfo, jobInfo, finalFailRetryCount, triggerType, new ShardingParam(i, groupInfo.getExecutorList().size()));
             }
-        } else {*/
-        //如果没有分片参数则写入
-        if (shardingParam == null) {
-            shardingParam = new ShardingParam(0, 1);
+        } else {
+            //如果没有分片参数则写入
+            if (shardingParam == null) {
+                shardingParam = new ShardingParam(0, 1);
+            }
+            processTrigger(groupInfo, jobInfo, finalFailRetryCount, triggerType, shardingParam);
         }
-        processTrigger(groupInfo, jobInfo, finalFailRetryCount, triggerType, shardingParam);
     }
 
     /**
@@ -113,7 +115,8 @@ public class RaincJobTrigger {
      * @param triggerType
      * @param shardingParam
      */
-    private static void processTrigger(GroupInfo groupInfo, JobInfoDO jobInfo, int finalFailRetryCount, TriggerTypeEnum triggerType, ShardingParam shardingParam) {
+    private static void processTrigger(GroupInfo groupInfo, JobInfoDO jobInfo,
+                                       int finalFailRetryCount, TriggerTypeEnum triggerType, ShardingParam shardingParam) {
         //初始化参数
         //路由策略
         ExecutorRouteStrategyEnum executorRouteStrategyEnum = ExecutorRouteStrategyEnum.match(jobInfo.getExecutorRouteStrategy(), null);
@@ -140,23 +143,36 @@ public class RaincJobTrigger {
                 //日志参数
                 .logId(jobLogDO.getId())
                 .logDateTime(jobLogDO.getTriggerTime().getTime())
+                //分片参数
+                .shardingParam(shardingParam)
                 .build();
-
+        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST != executorRouteStrategyEnum) {
+            shardingParam = null;
+        }
 
         //初始化路由地址
         ExecutorInfo executorInfo = null;
         ReturnT<ExecutorInfo> routeAddressResult = null;
         if (groupInfo.getExecutorList() != null && groupInfo.getExecutorList().size() > 0) {
-            routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, groupInfo.getExecutorList());
-            if (routeAddressResult.getCode() == ReturnT.SUCCESS_CODE) {
-                executorInfo = routeAddressResult.getContent();
+            if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST == executorRouteStrategyEnum) {
+                if (shardingParam.getIndex() < groupInfo.getExecutorList().size()) {
+                    executorInfo = groupInfo.getExecutorList().get(shardingParam.getIndex());
+                } else {
+                    executorInfo = groupInfo.getExecutorList().get(0);
+                }
+
+            } else {
+                routeAddressResult = executorRouteStrategyEnum.getRouter().route(triggerParam, groupInfo.getExecutorList());
+                if (routeAddressResult.getCode() == ReturnT.SUCCESS_CODE) {
+                    executorInfo = routeAddressResult.getContent();
+                }
             }
         } else {
             routeAddressResult = new ReturnT<>(ReturnT.FAIL_CODE, "Trigger Fail：registry address is empty");
         }
 
         //触发远程执行器
-        ReturnT<String> triggerResult = null;
+        ReturnT<String> triggerResult;
         if (executorInfo != null) {
             triggerResult = runExecutor(triggerParam, executorInfo);
         } else {
@@ -178,7 +194,7 @@ public class RaincJobTrigger {
         triggerMsgSb.append("<br>").append("失败重试次数").append("：").append(finalFailRetryCount);
 
         triggerMsgSb.append("<br><br><span style=\"color:#00c0ef;\" > >>>>>>>>>>>" + "触发调度" + "<<<<<<<<<<< </span><br>")
-                .append((routeAddressResult.getMsg() != null) ? routeAddressResult.getMsg() + "<br><br>" : "").append(triggerResult.getMsg() != null ? triggerResult.getMsg() : "");
+                .append((routeAddressResult != null && routeAddressResult.getMsg() != null) ? routeAddressResult.getMsg() + "<br><br>" : "").append(triggerResult.getMsg() != null ? triggerResult.getMsg() : "");
 
 
         // 6、保存触发信息

@@ -118,14 +118,10 @@ public class TaskCallbackThread {
                 ReturnT<String> callbackResult = adminBiz.callback(callbackParamList);
                 if (callbackResult != null && ReturnT.SUCCESS_CODE == callbackResult.getCode()) {
                     log.debug(">>>>>> rainc-job log callback finish{}", callbackParamList);
-                    //callbackLog(callbackParamList, "<br>----------- xxl-job job callback finish.");
-                    //callbackRet = true;
                     break;
-                } else {
-                    //callbackLog(callbackParamList, "<br>----------- xxl-job job callback fail, callbackResult:" + callbackResult);
                 }
             } catch (Exception e) {
-                //callbackLog(callbackParamList, "<br>----------- xxl-job job callback error, errorMsg:" + e.getMessage());
+                e.printStackTrace();
             }
         }
     }

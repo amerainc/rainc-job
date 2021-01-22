@@ -1,5 +1,7 @@
 package com.rainc.job.core.util;
 
+import cn.hutool.core.net.NetUtil;
+
 /**
  * @Author rainc
  * @create 2020/12/12 14:16
@@ -12,9 +14,9 @@ public class MyNetUtil {
      * @return
      */
     public static int findAvailablePort(int defaultPort) {
-        if (cn.hutool.core.net.NetUtil.isUsableLocalPort(defaultPort)) {
+        if (NetUtil.isUsableLocalPort(defaultPort)) {
             return defaultPort;
         }
-        return cn.hutool.core.net.NetUtil.getUsableLocalPort();
+        return NetUtil.getUsableLocalPort();
     }
 }
