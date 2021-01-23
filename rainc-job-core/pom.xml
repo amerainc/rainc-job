@@ -28,14 +28,13 @@
             <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.springframework/spring-webflux -->
+        <!--webflux-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
             <version>${spring.version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.projectreactor.netty/reactor-netty-http -->
         <dependency>
             <groupId>io.projectreactor.netty</groupId>
             <artifactId>reactor-netty-http</artifactId>
@@ -56,13 +55,11 @@
         </dependency>
 
         <!--feign-->
-        <!-- https://mvnrepository.com/artifact/io.github.openfeign/feign-core -->
         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-core</artifactId>
             <version>11.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.github.openfeign/feign-jackson -->
         <dependency>
             <groupId>io.github.openfeign</groupId>
             <artifactId>feign-jackson</artifactId>
