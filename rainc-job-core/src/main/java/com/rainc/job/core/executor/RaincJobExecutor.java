@@ -1,7 +1,7 @@
 package com.rainc.job.core.executor;
 
 import com.rainc.job.core.biz.AdminBiz;
-import com.rainc.job.core.biz.factory.AdminBizFactory;
+import com.rainc.job.core.biz.factory.BizFactory;
 import com.rainc.job.core.handler.IJobHandler;
 import com.rainc.job.core.server.impl.ReactiveServer;
 import com.rainc.job.core.thread.JobThread;
@@ -41,10 +41,9 @@ public class RaincJobExecutor {
 
     public void start() throws Exception {
         initServer(address, ip, port, appName, accessToken);
-        initAdminBizList(adminAddresses, accessToken);
-        TaskCallbackThread.getInstance().start();
         TaskPoolHelper.toStart(taskPoolMax);
-
+        TaskCallbackThread.getInstance().start();
+        initAdminBizList(adminAddresses, accessToken);
     }
 
     public void destroy() throws Exception {
@@ -62,7 +61,7 @@ public class RaincJobExecutor {
         if (adminAddresses != null && adminAddresses.trim().length() > 0) {
             for (String address : adminAddresses.trim().split(",")) {
                 if (address != null && address.trim().length() > 0) {
-                    AdminBiz adminBiz = AdminBizFactory.createAdminBiz(address, accessToken);
+                    AdminBiz adminBiz = BizFactory.createBiz(address, accessToken, AdminBiz.class);
                     adminBizList.add(adminBiz);
                 }
             }
@@ -83,7 +82,7 @@ public class RaincJobExecutor {
         ip = (ip != null && ip.trim().length() > 0) ? ip : IpUtil.getIp();
 
         if (address == null || address.trim().length() == 0) {
-            // registry-address：default use address to registry , otherwise use ip:port if address is null
+            // 默认是用address注册，如果address为空则使用ip和port
             String ip_port_address = IpUtil.getIpPort(ip, port);
             address = "http://{ip_port}/".replace("{ip_port}", ip_port_address);
         }

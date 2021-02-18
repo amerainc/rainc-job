@@ -1,4 +1,4 @@
-package com.rainc.job.core.util;
+package com.rainc.job.core.biz.factory;
 
 import com.rainc.job.core.enums.AdminBizConfig;
 import feign.Feign;
@@ -7,19 +7,10 @@ import feign.jackson.JacksonEncoder;
 
 /**
  * @Author rainc
- * @create 2020/12/19 12:27
+ * @create 2021/2/1 17:28
  */
-public class BizUtil {
-    /**
-     * 创建Biz
-     *
-     * @param address     访问地址
-     * @param accessToken 验证秘钥
-     * @param t           需要创建的对象类
-     * @param <T>         需要创建的对象类型
-     * @return 需要创建的对象类
-     */
-    public static <T> T createBiz(final String address, final String accessToken, Class<T> t) {
+public class BizFactory {
+    public static <T> T createBiz(final String address, final String accessToken, final Class<T> t) {
         return Feign.builder()
                 .encoder(new JacksonEncoder())
                 .decoder(new JacksonDecoder())

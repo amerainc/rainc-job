@@ -5,34 +5,33 @@ import com.rainc.job.core.context.RaincJobHelper;
 import com.rainc.job.core.handler.annotation.RaincJob;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalTime;
-import java.util.concurrent.TimeUnit;
-
 /**
  * @Author rainc
  * @create 2020/10/24 12:24
  */
 @Component
 public class SampleRaincJob {
-    @RaincJob("testHandler")
+    /**
+     * 普通任务
+     *
+     * @param param
+     * @return
+     * @throws Exception
+     */
+    @RaincJob("demoHandler")
     public ReturnT<String> test(String param) throws Exception {
-        LocalTime localTime = LocalTime.now();
-        System.out.println(Thread.currentThread());
-        System.out.println(param + "-时间-" + localTime);
-
-        int i = Integer.parseInt(param);
-        TimeUnit.SECONDS.sleep(i);
-        return new ReturnT<>(200, "测试成功");
-    }
-
-
-    @RaincJob("mdjcHandler")
-    public ReturnT<String> test2(String param) throws Exception {
-        LocalTime localTime = LocalTime.now();
-        System.out.println(param + "-时间-" + localTime);
+        System.out.println(param);
         return ReturnT.SUCCESS;
     }
 
+
+    /**
+     * 分片任务
+     *
+     * @param param
+     * @return
+     * @throws Exception
+     */
     @RaincJob("shardingHandler")
     public ReturnT<String> test3(String param) throws Exception {
         return RaincJobHelper.runShardTask((index, total) -> {

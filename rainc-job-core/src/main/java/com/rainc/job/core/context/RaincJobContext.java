@@ -21,7 +21,9 @@ public class RaincJobContext {
     @Getter
     private final String jobParam;
 
-    // ---------------------- for shard ----------------------
+    /**
+     * sharding param
+     */
     @Getter
     private final ShardingParam shardingParam;
 

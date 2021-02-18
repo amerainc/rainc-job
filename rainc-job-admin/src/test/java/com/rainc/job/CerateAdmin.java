@@ -1,6 +1,7 @@
-package com.rainc.job.service;
+package com.rainc.job;
 
 import com.rainc.job.model.JobUserDO;
+import com.rainc.job.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -8,10 +9,10 @@ import javax.annotation.Resource;
 
 /**
  * @Author rainc
- * @create 2020/12/24 14:57
+ * @create 2021/2/17 19:23
  */
 @SpringBootTest
-public class UserServiceTest {
+public class CerateAdmin {
     @Resource
     UserService userService;
 
@@ -23,5 +24,4 @@ public class UserServiceTest {
         jobUserDO.setRole(1);
         userService.add(jobUserDO);
     }
-
 }

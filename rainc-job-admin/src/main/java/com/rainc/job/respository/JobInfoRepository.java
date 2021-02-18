@@ -26,7 +26,7 @@ public interface JobInfoRepository extends JpaRepository<JobInfoDO, Long> {
     List<JobInfoDO> findAllByTriggerNextTimeIsLessThanAndTriggerStatusTrue(long maxNextTime, Pageable pageable);
 
     /**
-     * cas锁，锁本次任务
+     * 利用调度时间的唯一性进行cas算法保存
      *
      * @param jobId              任务id
      * @param oldTriggerNextTime 旧触发时间

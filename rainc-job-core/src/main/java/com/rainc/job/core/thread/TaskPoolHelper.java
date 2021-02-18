@@ -46,6 +46,7 @@ public class TaskPoolHelper {
             boolean isCancel = false;
             ReturnT<String> executeResult = null;
             try {
+                //初始化上下文
                 RaincJobContext raincJobContext = new RaincJobContext(
                         triggerParam.getJobId(),
                         triggerParam.getExecutorParams(),
@@ -67,6 +68,7 @@ public class TaskPoolHelper {
                         }
                         return returnT;
                     });
+
                     taskPool.execute(futureTask);
                     try {
                         //阻塞获取

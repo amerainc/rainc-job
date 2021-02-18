@@ -17,6 +17,6 @@ public class MyDateUtil {
      * @return
      */
     public static Date calDead(Date date) {
-        return DateUtil.offsetSecond(date, RegistryConfig.DEAD_TIMEOUT);
+        return DateUtil.offsetSecond(date, -RegistryConfig.DEAD_TIMEOUT);
     }
 }

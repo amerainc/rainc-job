@@ -35,7 +35,6 @@ public class JobRegistryMonitorHelper {
 
             while (!toStop) {
                 try {
-
                     Date nowTime = new Date();
                     //删除数据库过期执行器
                     List<JobRegistryDO> idl = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository()
@@ -60,10 +59,12 @@ public class JobRegistryMonitorHelper {
                             if (executorInfo.getUpdateTime() == null) {
                                 //无更新时间的执行器为手动注册执行器
                                 if (!executorSet.contains(executorInfo)) {
+                                    //如果已经没有手动注册该执行器的信息，则移除该执行器
                                     appInfo.getAddressMap().remove(executorInfo.getAddress());
                                 }
                                 continue;
                             }
+                            //如果是自动注册，则检查执行器是否失效
                             if (nowTime.getTime() - executorInfo.getUpdateTime().getTime() > TimeUnit.SECONDS.toMillis(RegistryConfig.DEAD_TIMEOUT)) {
                                 log.info(">>>>>>>> rainc-job executor remove{}", executorInfo);
                                 appInfo.getAddressMap().remove(executorInfo.getAddress());

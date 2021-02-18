@@ -45,6 +45,7 @@ public class ReactiveServer extends AbstractServer {
                         .port(port)
                         .bindNow();
                 log.info(">>>>>>>> rainc-job remoting server start nettype={},port={}", ReactiveServer.class, port);
+                //开启注册线程
                 startRegistry(appname, address);
                 //启动服务器并阻塞
                 disposableServer.onDispose().block();
@@ -113,6 +114,12 @@ public class ReactiveServer extends AbstractServer {
             return ServerResponse.ok().body(handlersMono, ReturnT.class);
         }
 
+        /**
+         * 运行服务
+         *
+         * @param request
+         * @return
+         */
         public Mono<ServerResponse> run(ServerRequest request) {
             Mono<TriggerParam> triggerParamMono = request.bodyToMono(TriggerParam.class);
             return triggerParamMono
@@ -120,7 +127,12 @@ public class ReactiveServer extends AbstractServer {
                     .flatMap((returnT -> ServerResponse.ok().bodyValue(returnT)));
         }
 
-
+        /**
+         * 任务终止服务
+         *
+         * @param request
+         * @return
+         */
         public Mono<ServerResponse> kill(ServerRequest request) {
             String id = request.pathVariable("id");
             Mono<ReturnT<String>> killMono = Mono.create((t) -> t.success(executorBiz.kill(Long.parseLong(id))));
@@ -129,7 +141,7 @@ public class ReactiveServer extends AbstractServer {
     }
 
 
-    // ---------------------- registry ----------------------
+    // ---------------------- 注册线程 ----------------------
 
     public void startRegistry(final String appname, final String address) {
         // start registry

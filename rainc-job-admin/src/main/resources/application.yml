@@ -1,12 +1,12 @@
 ### web
 server:
-  port: 8082
+  port: 8081
 
 ### datasource-pool
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/rainc_job_test?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/rainc_job?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
     type: com.zaxxer.hikari.HikariDataSource
@@ -21,17 +21,18 @@ spring:
       connection-test-query: SELECT 1
       validation-timeout: 1000
 
-
   ### jpa
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+### 告警邮箱配置
   mail:
     host: smtp.qq.com
     port: 25
-    username: 1123015515@qq.com
-    password: buvgjlcotupbgiab
+    username: ##邮箱账号
+    password: ##邮箱授权码
     properties:
       mail:
         stmp:
@@ -40,25 +41,18 @@ spring:
           starttls.required: true
           socketFactory.class: javax.net.ssl.SSLSocketFactory
 
+### logging:
+logging:
+  level:
+    root: info
 
-
+### rainc job 配置
 rainc:
   job:
     admin:
       trigger-pool-fast-max: 200
       trigger-pool-slow-max: 100
+      access-token:
       jwt:
         expire: 604800
         secret: f4e2e52034348f86b67cde581c0f9eb5
-      access-token: aaaa
-#logging:
-logging:
-  level:
-    root: info
-#    org:
-#      hibernate:
-#        SQL: debug   #debug时显示sql
-#        type:
-#          descriptor:
-#            sql:
-#              BasicBinder: trace  #trace时，显示参数

@@ -1,5 +1,6 @@
 package com.rainc.job.core.executor.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.rainc.job.core.executor.RaincJobExecutor;
 import com.rainc.job.core.handler.annotation.RaincJob;
 import com.rainc.job.core.handler.impl.MethodJobHandler;
@@ -55,9 +56,9 @@ public class RaincJobSpringExecutor extends RaincJobExecutor implements Initiali
                 return;
             }
 
-            String name = raincJob.value();
+            String name = raincJob.value().trim();
             //检测handler名是否合法
-            if (name.trim().length() == 0) {
+            if (StrUtil.isBlank(name)) {
                 throw new RuntimeException("rainc-job method-jobhandler name invalid, for[" + bean.getClass() + "#" + method.getName() + "] .");
             }
             if (loadJobHandler(name) != null) {

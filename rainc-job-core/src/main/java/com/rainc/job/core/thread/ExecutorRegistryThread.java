@@ -1,5 +1,6 @@
 package com.rainc.job.core.thread;
 
+import cn.hutool.core.util.StrUtil;
 import com.rainc.job.core.biz.AdminBiz;
 import com.rainc.job.core.biz.model.RegistryParam;
 import com.rainc.job.core.biz.model.ReturnT;
@@ -25,8 +26,8 @@ public class ExecutorRegistryThread {
     private volatile boolean toStop = false;
 
     public void start(final String appname, final String address) {
-        // 验证
-        if (appname == null || appname.trim().length() == 0) {
+        // 验证appname
+        if (StrUtil.isBlank(appname)) {
             log.warn(">>>>>>>>>>> rainc-job, executor registry config fail, appname is null.");
             return;
         }
