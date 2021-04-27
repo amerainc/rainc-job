@@ -177,7 +177,7 @@ public class JobThread extends Thread {
             } finally {
                 if (triggerParam != null) {
                     if (toStop) {
-                        ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务运行中, 被杀死。]");
+                        ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务运行中, 被终止。]");
                         TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
                     }
                 }
@@ -188,7 +188,7 @@ public class JobThread extends Thread {
             TriggerParam triggerParam = triggerQueue.poll();
             if (triggerParam != null) {
                 // is killed
-                ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务未执行，在队列中, 被杀死。]");
+                ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务未执行，在队列中, 被终止。]");
                 TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
             }
         }
@@ -196,7 +196,7 @@ public class JobThread extends Thread {
             concurrentTaskMap.forEach((key, value) -> {
                 if (!value.isDone()) {
                     value.cancel(true);
-                    ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务运行中, 被杀死]");
+                    ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务运行中, 被终止]");
                     TaskCallbackThread.pushCallBack(new HandleCallbackParam(key.getLogId(), key.getLogDateTime(), stopResult));
                 }
             });
