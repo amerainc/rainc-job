@@ -9,6 +9,7 @@ import java.io.Serializable;
 /**
  * @Author rainc
  * @create 2020/12/13 20:21
+ * 分片参数
  */
 @Data
 @NoArgsConstructor

@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 /**
  * @Author rainc
  * @create 2020/12/7 22:34
+ * 函数型任务处理器
  */
 public class MethodJobHandler implements IJobHandler {
     /**

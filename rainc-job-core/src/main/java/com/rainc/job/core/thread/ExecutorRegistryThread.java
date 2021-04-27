@@ -4,7 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import com.rainc.job.core.biz.AdminBiz;
 import com.rainc.job.core.biz.model.RegistryParam;
 import com.rainc.job.core.biz.model.ReturnT;
-import com.rainc.job.core.enums.RegistryConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
+import com.rainc.job.core.constant.RegistryConfig;
 import com.rainc.job.core.executor.RaincJobExecutor;
 import lombok.extern.log4j.Log4j2;
 
@@ -28,7 +29,7 @@ public class ExecutorRegistryThread {
     public void start(final String appname, final String address) {
         // 验证appname
         if (StrUtil.isBlank(appname)) {
-            log.warn(">>>>>>>>>>> rainc-job, executor registry config fail, appname is null.");
+            log.warn(JobLogPrefix.PREFIX + "执行器注册配置错误，appname不能为空");
             return;
         }
         registryThread = new Thread(() -> {
@@ -42,13 +43,13 @@ public class ExecutorRegistryThread {
                             ReturnT<String> registryResult = adminBiz.registry(registryParam);
                             if (registryResult != null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
                                 registryResult = ReturnT.SUCCESS;
-                                log.debug(">>>>>>>>>>> rainc-job registry success, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                                log.debug(JobLogPrefix.PREFIX + "注册成功, registryParam:{}, registryResult:{}", registryParam, registryResult);
                                 break;
                             } else {
-                                log.info(">>>>>>>>>>> rainc-job registry fail, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                                log.info(JobLogPrefix.PREFIX + "注册失败, registryParam:{}, registryResult:{}", registryParam, registryResult);
                             }
                         } catch (Exception e) {
-                            log.info(">>>>>>>>>>> rainc-job registry error, registryParam:{}", registryParam, e);
+                            log.warn(JobLogPrefix.PREFIX + "注册出错, registryParam:{},错误信息:{}", registryParam, e);
                         }
                     }
                 } catch (Exception e) {
@@ -64,7 +65,7 @@ public class ExecutorRegistryThread {
                     }
                 } catch (InterruptedException e) {
                     if (!toStop) {
-                        log.warn(">>>>>>>>>>> xxl-job, executor registry thread interrupted, error msg:{}", e.getMessage());
+                        log.warn(JobLogPrefix.PREFIX+"执行器注册线程中断,错误信息:{}", e.getMessage());
                     }
                 }
             }
@@ -78,14 +79,14 @@ public class ExecutorRegistryThread {
                         ReturnT<String> registryResult = adminBiz.registryRemove(registryParam);
                         if (registryResult != null && ReturnT.SUCCESS_CODE == registryResult.getCode()) {
                             registryResult = ReturnT.SUCCESS;
-                            log.info(">>>>>>>>>>> rainc-job registry-remove success, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                            log.info(JobLogPrefix.PREFIX+"主动移除成功, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
                             break;
                         } else {
-                            log.info(">>>>>>>>>>> rainc-job registry-remove fail, registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
+                            log.info(JobLogPrefix.PREFIX+"主动移除失败,  registryParam:{}, registryResult:{}", new Object[]{registryParam, registryResult});
                         }
                     } catch (Exception e) {
                         if (!toStop) {
-                            log.info(">>>>>>>>>>> xxl-job registry-remove error, registryParam:{}", registryParam, e);
+                            log.warn(JobLogPrefix.PREFIX+"主动移除出错,  registryParam:{},错误信息:{}", registryParam, e);
                         }
 
                     }
@@ -96,7 +97,7 @@ public class ExecutorRegistryThread {
                     log.error(e.getMessage(), e);
                 }
             }
-            log.info(">>>>>>>>>>> rainc-job, executor registry thread destory.");
+            log.info(JobLogPrefix.PREFIX+"执行器注册线程销毁");
         });
 
         registryThread.setDaemon(true);

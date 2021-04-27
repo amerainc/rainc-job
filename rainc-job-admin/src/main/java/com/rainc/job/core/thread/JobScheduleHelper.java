@@ -1,6 +1,7 @@
 package com.rainc.job.core.thread;
 
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.cron.CronExpression;
 import com.rainc.job.core.trigger.TriggerTypeEnum;
 import com.rainc.job.model.JobInfoDO;
@@ -50,10 +51,10 @@ public class JobScheduleHelper {
             }
             // pre-read count: treadpool-size * trigger-qps (each trigger cost 50ms, qps = 1000/50 = 20)
             int preReadCount = (RaincJobAdminConfig.getAdminConfig().getTriggerPoolFastMax() + RaincJobAdminConfig.getAdminConfig().gettriggerPoolSlowMax()) * 20;
-            log.info(">>>>>>>> preReadCount={}", preReadCount);
+            log.info(JobLogPrefix.PREFIX+"预读数量={}", preReadCount);
             //jpa 分页
             PageRequest preReadPageReq = PageRequest.of(0, preReadCount);
-            log.info(">>>>>>>>> init rainc-job admin scheduler success.");
+            log.info(JobLogPrefix.PREFIX+"初始化调度线程");
             while (!scheduleThreadToStop) {
                 long nowTime = 0;
                 boolean preSuc = false;
@@ -116,7 +117,7 @@ public class JobScheduleHelper {
                     }
                 } catch (Exception e) {
                     if (!scheduleThreadToStop) {
-                        log.error(">>>>>>>> rainc-job, JobScheduleHelper#scheduleThread error:", e);
+                        log.error(JobLogPrefix.PREFIX+"JobScheduleHelper#scheduleThread error:", e);
                     }
                 }
 
@@ -134,7 +135,7 @@ public class JobScheduleHelper {
                     }
                 }
             }
-            log.info(">>>>>>>>>> rainc-job JobSchedulerHelper#scheduleThread stop");
+            log.info(JobLogPrefix.PREFIX+"JobSchedulerHelper#scheduleThread stop");
         });
         scheduleThread.setDaemon(true);
         scheduleThread.setName("rainc-job JobSchedulerHelper#scheduleThread");
@@ -166,7 +167,7 @@ public class JobScheduleHelper {
                     }
 
                     // 触发时间环
-                    log.debug(">>>>>>>>>>> rainc-job, time-ring beat : " + nowSecond + " = " + ringItemData);
+                    log.debug(JobLogPrefix.PREFIX+"时间环信息 : " + nowSecond + " = " + ringItemData);
                     if (ringItemData.size() > 0) {
                         //遍历当前时间的数据列表进行触发
                         for (long jobId : ringItemData) {
@@ -178,7 +179,7 @@ public class JobScheduleHelper {
                     }
                 } catch (Exception e) {
                     if (!ringThreadToStop) {
-                        log.error(">>>>>>>>>>> rainc-job, JobScheduleHelper#ringThread error:", e);
+                        log.error(JobLogPrefix.PREFIX+"JobScheduleHelper#ringThread error:", e);
                     }
                 }
 
@@ -191,7 +192,7 @@ public class JobScheduleHelper {
                     }
                 }
             }
-            log.info(">>>>>>>>>> rainc-job JobSchedulerHelper#ringThread stop");
+            log.info(JobLogPrefix.PREFIX+"JobSchedulerHelper#ringThread stop");
         });
         ringThread.setDaemon(true);
         ringThread.setName("rainc-job, admin JobScheduleHelper#ringThread");
@@ -252,6 +253,6 @@ public class JobScheduleHelper {
         List<Long> ringItemData = ringData.computeIfAbsent(ringSecond, ArrayList::new);
         ringItemData.add(jobId);
 
-        log.debug(">>>>>>>>>>> rainc-job, schedule push time-ring : " + ringSecond + " = " + ringItemData);
+        log.debug(JobLogPrefix.PREFIX+"任务放入时间环 : " + ringSecond + " = " + ringItemData);
     }
 }

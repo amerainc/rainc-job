@@ -2,7 +2,7 @@ package com.rainc.job.controller.interceptor;
 
 import cn.hutool.core.util.StrUtil;
 import com.rainc.job.core.config.RaincJobAdminConfig;
-import com.rainc.job.core.enums.AdminBizConfig;
+import com.rainc.job.core.constant.AdminBizConfig;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 

@@ -1,6 +1,6 @@
 package com.rainc.job.core.biz.factory;
 
-import com.rainc.job.core.enums.AdminBizConfig;
+import com.rainc.job.core.constant.AdminBizConfig;
 import feign.Feign;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
@@ -8,6 +8,7 @@ import feign.jackson.JacksonEncoder;
 /**
  * @Author rainc
  * @create 2021/2/1 17:28
+ * biz工厂
  */
 public class BizFactory {
     public static <T> T createBiz(final String address, final String accessToken, final Class<T> t) {

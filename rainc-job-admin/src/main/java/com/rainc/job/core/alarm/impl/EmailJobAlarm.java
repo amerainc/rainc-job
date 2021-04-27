@@ -3,6 +3,7 @@ package com.rainc.job.core.alarm.impl;
 import com.rainc.job.core.alarm.JobAlarm;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.model.JobGroupDO;
 import com.rainc.job.model.JobInfoDO;
 import com.rainc.job.model.JobLogDO;
@@ -79,7 +80,7 @@ public class EmailJobAlarm implements JobAlarm {
                     helper.setText(content, true);
                     RaincJobAdminConfig.getAdminConfig().getMailSender().send(mimeMessage);
                 } catch (Exception e) {
-                    log.error(">>>>>>>>>>> rainc-job, job fail alarm email send error, JobLogId:{}", jobLog.getId(), e);
+                    log.error(JobLogPrefix.PREFIX+"任务失败告警邮件发送失败, JobLogId:{}", jobLog.getId(), e);
 
                     alarmResult = false;
                 }

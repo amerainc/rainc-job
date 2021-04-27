@@ -1,7 +1,7 @@
 package com.rainc.job.util;
 
 import cn.hutool.core.date.DateUtil;
-import com.rainc.job.core.enums.RegistryConfig;
+import com.rainc.job.core.constant.RegistryConfig;
 
 import java.util.Date;
 

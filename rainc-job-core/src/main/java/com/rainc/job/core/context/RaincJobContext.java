@@ -6,23 +6,24 @@ import lombok.Getter;
 /**
  * @Author rainc
  * @create 2021/1/22 12:35
+ * 任务上下文
  */
 public class RaincJobContext {
 
     /**
-     * job id
+     * 任务id
      */
     @Getter
     private final long jobId;
 
     /**
-     * job param
+     * 任务参数
      */
     @Getter
     private final String jobParam;
 
     /**
-     * sharding param
+     * 分片参数
      */
     @Getter
     private final ShardingParam shardingParam;

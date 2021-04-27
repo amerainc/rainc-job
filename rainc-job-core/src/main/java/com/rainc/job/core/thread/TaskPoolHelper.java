@@ -3,6 +3,7 @@ package com.rainc.job.core.thread;
 import com.rainc.job.core.biz.model.HandleCallbackParam;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.context.RaincJobContext;
 import com.rainc.job.core.handler.IJobHandler;
 import lombok.extern.log4j.Log4j2;
@@ -74,8 +75,8 @@ public class TaskPoolHelper {
                         //阻塞获取
                         futureTask.get(triggerParam.getExecutorTimeout(), TimeUnit.SECONDS);
                     } catch (TimeoutException e) {
-                        executeResult = new ReturnT<>(IJobHandler.FAIL_TIMEOUT, "job execute timeout ");
-                        log.info(">>>>>>>>>>>>>rainc job test time out");
+                        executeResult = new ReturnT<>(IJobHandler.FAIL_TIMEOUT, "任务处理超时");
+                        log.info(JobLogPrefix.PREFIX+"任务处理超时");
                     } finally {
                         //中断该任务线程
                         futureTask.cancel(true);
@@ -131,7 +132,7 @@ public class TaskPoolHelper {
 
     public void stop() {
         taskPool.shutdownNow();
-        log.info(">>>>>>>> rainc-job task thread pool shutdown success.");
+        log.info(JobLogPrefix.PREFIX+"任务线程池关闭");
     }
 
     public static void toStart(int taskPoolMax) {

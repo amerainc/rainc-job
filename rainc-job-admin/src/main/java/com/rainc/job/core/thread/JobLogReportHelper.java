@@ -2,6 +2,7 @@ package com.rainc.job.core.thread;
 
 import cn.hutool.core.date.DateUtil;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.model.JobLogDO;
 import com.rainc.job.model.JobLogReportDO;
 import com.rainc.job.respository.specification.JobLogSpecification;
@@ -72,7 +73,7 @@ public class JobLogReportHelper {
 
                 } catch (Exception e) {
                     if (!toStop) {
-                        log.error(">>>>>>>>>>> rainc-job, job log report thread error:", e);
+                        log.error(JobLogPrefix.PREFIX+"任务日志报表线程出错:", e);
                     }
                 }
 
@@ -106,7 +107,7 @@ public class JobLogReportHelper {
 
             }
 
-            log.info(">>>>>>>>>>> rainc-job, job log report thread stop");
+            log.info(JobLogPrefix.PREFIX+"任务日志报表线程停止");
 
         }
         );

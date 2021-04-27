@@ -7,6 +7,7 @@ import java.io.Serializable;
 /**
  * @Author rainc
  * @create 2020/12/13 20:39
+ * 任务触发参数
  */
 @Data
 @Builder
@@ -20,7 +21,7 @@ public class TriggerParam implements Serializable {
      */
     private long jobId;
     /**
-     * 执行器handler
+     * 任务处理器
      */
     private String executorHandler;
     /**

@@ -2,6 +2,7 @@ package com.rainc.job.core.executor;
 
 import com.rainc.job.core.biz.AdminBiz;
 import com.rainc.job.core.biz.factory.BizFactory;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.handler.IJobHandler;
 import com.rainc.job.core.server.impl.ReactiveServer;
 import com.rainc.job.core.thread.JobThread;
@@ -20,6 +21,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @Author rainc
  * @create 2020/10/23 17:18
+ * 任务执行器启动类
  */
 @Log4j2
 public class RaincJobExecutor {
@@ -73,7 +75,7 @@ public class RaincJobExecutor {
     }
 
 
-    //-----------------------------executor-server------------------------------------------------
+    //-----------------------------执行器-服务器------------------------------------------------
 
     private ReactiveServer reactiveServer;
 
@@ -100,14 +102,14 @@ public class RaincJobExecutor {
     }
 
 
-//--------------------------------jobHandlerRepository-----------------------------------------------
+//--------------------------------任务处理器管理-----------------------------------------------
     /**
-     * 管理所有执行handler
+     * 管理所有任务处理器
      */
     private static final ConcurrentMap<String, IJobHandler> jobHandlerRepository = new ConcurrentHashMap<>();
 
     public static IJobHandler registJobHandler(String name, IJobHandler jobHandler) {
-        log.info(">>>>>>>> rainc-job regist jobhandler success,name:{},jobHandler:{}", name, jobHandler);
+        log.info(JobLogPrefix.PREFIX+"任务处理器注册成功,name:{},jobHandler:{}", name, jobHandler);
         return jobHandlerRepository.put(name, jobHandler);
     }
 
@@ -126,7 +128,7 @@ public class RaincJobExecutor {
         //创建新任务线程并启动
         JobThread newJobThread = new JobThread(jobId, handler);
         newJobThread.start();
-        log.info(">>>>>>>>>>> rainc-job regist JobThread success, jobId:{}, handler:{}", new Object[]{jobId, handler});
+        log.info(JobLogPrefix.PREFIX+"任务线程注册成功, jobId:{}, handler:{}", new Object[]{jobId, handler});
         //替换线程  hashmap put如果有旧值则返回旧值
         JobThread oldJobThread = jobThreadRepository.put(jobId, newJobThread);
 
