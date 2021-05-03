@@ -9,6 +9,7 @@ import com.rainc.job.model.JobUserDO;
 import com.rainc.job.service.JobGroupService;
 import com.rainc.job.util.QueryUtil;
 import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -48,7 +49,7 @@ public class JobGroupController {
     }
 
     @RequestMapping(value = "/", method = {RequestMethod.PUT, RequestMethod.POST})
-    public ReturnT<String> save(@RequestBody JobGroupDO jobGroupDO) {
+    public ReturnT<String> save(@Validated @RequestBody JobGroupDO jobGroupDO) {
         return jobGroupService.save(jobGroupDO);
     }
 

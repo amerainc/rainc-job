@@ -3,6 +3,7 @@ package com.rainc.job.core.thread;
 import com.rainc.job.core.biz.AdminBiz;
 import com.rainc.job.core.biz.model.HandleCallbackParam;
 import com.rainc.job.core.biz.model.ReturnT;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.executor.RaincJobExecutor;
 import lombok.extern.log4j.Log4j2;
 
@@ -36,7 +37,7 @@ public class TaskCallbackThread {
      */
     public static void pushCallBack(HandleCallbackParam callback) {
         TaskCallbackThread.getInstance().callBackQueue.add(callback);
-        log.debug(">>>>>>>>>>> rainc-job, push callback request, logId:{}", callback.getLogId());
+        log.debug(JobLogPrefix.PREFIX+"放置回调任务, logId:{}", callback.getLogId());
     }
 
     /**
@@ -48,7 +49,7 @@ public class TaskCallbackThread {
     public void start() {
         // 验证
         if (RaincJobExecutor.getAdminBizList() == null) {
-            log.warn(">>>>>>>>>>> rainc-job, executor callback config fail, adminAddresses is null.");
+            log.warn(JobLogPrefix.PREFIX+"执行器回调配置错误，调度中心为空。");
             return;
         }
         taskCallBackThread = new Thread(() -> {
@@ -86,7 +87,7 @@ public class TaskCallbackThread {
                     log.error(e.getMessage(), e);
                 }
             }
-            log.info(">>>>>>>>>>> rainc-job, executor callback thread destory.");
+            log.info(JobLogPrefix.PREFIX+"执行器回调线程销毁");
 
         });
         taskCallBackThread.setDaemon(true);
@@ -117,7 +118,7 @@ public class TaskCallbackThread {
             try {
                 ReturnT<String> callbackResult = adminBiz.callback(callbackParamList);
                 if (callbackResult != null && ReturnT.SUCCESS_CODE == callbackResult.getCode()) {
-                    log.debug(">>>>>> rainc-job log callback finish{}", callbackParamList);
+                    log.debug(JobLogPrefix.PREFIX+"日志回调完成{}", callbackParamList);
                     break;
                 }
             } catch (Exception e) {

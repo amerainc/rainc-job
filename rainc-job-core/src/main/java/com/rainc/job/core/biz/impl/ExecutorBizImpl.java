@@ -13,6 +13,7 @@ import java.util.List;
 /**
  * @Author rainc
  * @create 2020/12/13 21:54
+ * 执行器业务接口实现类
  */
 public class ExecutorBizImpl implements ExecutorBiz {
     public static ExecutorBiz instance = new ExecutorBizImpl();
@@ -28,26 +29,26 @@ public class ExecutorBizImpl implements ExecutorBiz {
 
     @Override
     public ReturnT<String> run(TriggerParam triggerParam) {
-        //载入handler
+        //载入旧任务处理器
         JobThread jobThread = RaincJobExecutor.loadJobThread(triggerParam.getJobId());
         IJobHandler jobHandler = jobThread != null ? jobThread.getHandler() : null;
         String removeOldReason = null;
-        // new jobhandler
+        // 载入新任务处理器
         IJobHandler newJobHandler = RaincJobExecutor.loadJobHandler(triggerParam.getExecutorHandler());
-        // 验证hanlder是否一致
 
+        // 验证任务处理器是否一致
         if (jobThread != null && jobHandler != newJobHandler) {
-            // 更换handler需要杀死旧任务线程
-            removeOldReason = "change jobhandler or glue type, and terminate the old job thread.";
+            // 更换任务处理器需要销毁旧任务线程
+            removeOldReason = "变更任务处理器并销毁旧任务线程。";
             jobThread = null;
             jobHandler = null;
         }
 
-        // 验证 handler是否存在
+        // 验证任务处理器是否存在
         if (jobHandler == null) {
             jobHandler = newJobHandler;
             if (jobHandler == null) {
-                return new ReturnT<String>(ReturnT.FAIL_CODE, "job handler [" + triggerParam.getExecutorHandler() + "] not found.");
+                return new ReturnT<String>(ReturnT.FAIL_CODE, "找不到任务处理器 [" + triggerParam.getExecutorHandler() + "]");
             }
         }
         ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy(), null);
@@ -56,12 +57,12 @@ public class ExecutorBizImpl implements ExecutorBiz {
             if (ExecutorBlockStrategyEnum.DISCARD_LATER == blockStrategy) {
                 // 如果已经有任务则直接抛弃
                 if (jobThread.isRunningOrHasQueue()) {
-                    return new ReturnT<>(ReturnT.FAIL_CODE, "block strategy effect：" + ExecutorBlockStrategyEnum.DISCARD_LATER.getTitle());
+                    return new ReturnT<>(ReturnT.FAIL_CODE, "阻塞策略：" + ExecutorBlockStrategyEnum.DISCARD_LATER.getTitle());
                 }
             } else if (ExecutorBlockStrategyEnum.COVER_EARLY == blockStrategy) {
                 //如果是覆盖，则杀死运行中的任务线程
                 if (jobThread.isRunningOrHasQueue()) {
-                    removeOldReason = "block strategy effect：" + ExecutorBlockStrategyEnum.COVER_EARLY.getTitle();
+                    removeOldReason = "阻塞策略：" + ExecutorBlockStrategyEnum.COVER_EARLY.getTitle();
                     jobThread = null;
                 }
             }
@@ -83,9 +84,9 @@ public class ExecutorBizImpl implements ExecutorBiz {
     public ReturnT<String> kill(long id) {
         JobThread jobThread = RaincJobExecutor.loadJobThread(id);
         if (jobThread != null) {
-            RaincJobExecutor.removeJobThread(id, "scheduling center kill job.");
+            RaincJobExecutor.removeJobThread(id, "调度中心销毁任务。");
             return ReturnT.SUCCESS;
         }
-        return new ReturnT<>(ReturnT.SUCCESS_CODE, "job thread already killed.");
+        return new ReturnT<>(ReturnT.SUCCESS_CODE, "任务线程已经销毁。");
     }
 }

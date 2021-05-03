@@ -6,7 +6,7 @@ import com.rainc.job.core.biz.ExecutorBiz;
 import com.rainc.job.core.biz.impl.ExecutorBizImpl;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
-import com.rainc.job.core.enums.AdminBizConfig;
+import com.rainc.job.core.constant.AdminBizConfig;
 import com.rainc.job.core.server.AbstractServer;
 import com.rainc.job.core.thread.ExecutorRegistryThread;
 import lombok.extern.log4j.Log4j2;

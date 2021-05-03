@@ -6,6 +6,7 @@ import com.rainc.job.core.biz.model.ShardingParam;
 /**
  * @Author rainc
  * @create 2021/1/22 13:02
+ * raincJob辅助类
  */
 public class RaincJobHelper {
     // ---------------------- base info ----------------------

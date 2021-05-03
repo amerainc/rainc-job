@@ -9,6 +9,7 @@ import java.io.Serializable;
 /**
  * @Author rainc
  * @create 2020/12/11 20:03
+ * 执行器注册参数
  */
 @Data
 @AllArgsConstructor

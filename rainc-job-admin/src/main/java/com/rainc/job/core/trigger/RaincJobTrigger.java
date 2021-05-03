@@ -5,6 +5,7 @@ import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.ShardingParam;
 import com.rainc.job.core.biz.model.TriggerParam;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.enums.ExecutorBlockStrategyEnum;
 import com.rainc.job.core.model.AppInfo;
 import com.rainc.job.core.model.ExecutorInfo;
@@ -49,14 +50,14 @@ public class RaincJobTrigger {
         //查询任务信息
         Optional<JobInfoDO> jobInfoOptional = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().findById(jobId);
         if (!jobInfoOptional.isPresent()) {
-            log.warn(">>>>>>>>>>>> trigger fail, jobId invalid,jobId={}", jobId);
+            log.warn(JobLogPrefix.PREFIX+"触发失败，无效任务,jobId={}", jobId);
             return;
         }
         JobInfoDO jobInfo = jobInfoOptional.get();
         //查询任务分组信息
         Optional<JobGroupDO> jobGroupOptional = RaincJobAdminConfig.getAdminConfig().getJobGroupRepository().findById(jobInfo.getJobGroup());
         if (!jobGroupOptional.isPresent()) {
-            log.warn(">>>>>>>>>>>> trigger fail, groupId invalid,groupId={}", jobInfo.getJobGroup());
+            log.warn(JobLogPrefix.PREFIX+"触发失败，无效任务分组,groupId={}", jobInfo.getJobGroup());
             return;
         }
         GroupInfo groupInfo = GroupInfo.castToInfo(jobGroupOptional.get());
@@ -130,7 +131,7 @@ public class RaincJobTrigger {
         jobLogDO.setHandleCode(0);
         jobLogDO.setAlarmStatus(0);
         RaincJobAdminConfig.getAdminConfig().getJobLogRepository().saveAndFlush(jobLogDO);
-        log.debug(">>>>>>>>>>> rainc-job trigger start, jobId:{}", jobLogDO.getId());
+        log.debug(JobLogPrefix.PREFIX+"开始触发任务, jobId:{}", jobLogDO.getId());
 
         //初始化触发参数
         TriggerParam triggerParam = TriggerParam.builder()
@@ -168,7 +169,7 @@ public class RaincJobTrigger {
                 }
             }
         } else {
-            routeAddressResult = new ReturnT<>(ReturnT.FAIL_CODE, "Trigger Fail：registry address is empty");
+            routeAddressResult = new ReturnT<>(ReturnT.FAIL_CODE, "触发失败：没有执行器地址");
         }
 
         //触发远程执行器
@@ -216,7 +217,7 @@ public class RaincJobTrigger {
                         jobLogDO.getTriggerTime(),
                         jobLogDO.getTriggerCode(),
                         jobLogDO.getTriggerMsg());
-        log.debug(">>>>>>>>>>> rainc-job trigger end, jobId:{}", jobLogDO.getId());
+        log.debug(JobLogPrefix.PREFIX+"触发完成, jobId:{}", jobLogDO.getId());
     }
 
     /**
@@ -231,7 +232,7 @@ public class RaincJobTrigger {
         try {
             runResult = executorInfo.getExecutorBiz().run(triggerParam);
         } catch (Exception e) {
-            log.error(">>>>>>>>>>> rainc-job trigger error, please check if the executor[{}] is running.", executorInfo, e);
+            log.error(JobLogPrefix.PREFIX+"触发错误, 请确保执行器[{}]正在运行", executorInfo, e);
             runResult = new ReturnT<String>(ReturnT.FAIL_CODE, ExceptionUtil.getMessage(e));
         }
         StringBuffer runResultSB = new StringBuffer("Trigger Job:");

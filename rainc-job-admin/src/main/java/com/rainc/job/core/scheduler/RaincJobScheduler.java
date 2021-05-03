@@ -5,6 +5,7 @@ import com.rainc.job.core.biz.ExecutorBiz;
 import com.rainc.job.core.biz.factory.BizFactory;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.model.AppInfo;
 import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.core.thread.*;
@@ -106,7 +107,7 @@ public class RaincJobScheduler {
         if (executorInfo != null) {
             //如果已注册则更新时间
             executorInfo.setUpdateTime(new Date());
-            log.debug(">>>>>>>> rainc-job update executor {}", executorInfo);
+            log.debug(JobLogPrefix.PREFIX+"更新执行器 {}", executorInfo);
         } else {
             //否则注册
             executorInfo = ExecutorInfo.builder()
@@ -117,7 +118,7 @@ public class RaincJobScheduler {
                     .executorBiz(BizFactory.createBiz(address, RaincJobAdminConfig.getAdminConfig().getAccessToken(), ExecutorBiz.class))
                     .build();
             appInfo.getAddressMap().put(address, executorInfo);
-            log.info(">>>>>>>> rainc-job register executor {}", executorInfo);
+            log.info(JobLogPrefix.PREFIX+"注册执行器 {}", executorInfo);
             //异步刷新执行器handler信息
             if (isAuto) {
                 CompletableFuture.runAsync(() -> refreshHandlerList(appName, address));
@@ -175,7 +176,7 @@ public class RaincJobScheduler {
             return null;
         }
         ExecutorInfo executorInfo = appInfo.getAddressMap().remove(address);
-        log.info(">>>>>>>> rainc-job remove executor {}", executorInfo);
+        log.info(JobLogPrefix.PREFIX+"移除执行器 {}", executorInfo);
         return executorInfo;
     }
 
@@ -192,12 +193,12 @@ public class RaincJobScheduler {
         }
         ReturnT<List<String>> handlers = executor.getExecutorBiz().handlers();
         if (handlers.getCode() == ReturnT.FAIL_CODE) {
-            log.info(">>>>>>>> rainc-job refresh handlers fail {} retry...", executor);
+            log.info(JobLogPrefix.PREFIX+"刷新任务处理器失败 {} 重试...", executor);
             refreshHandlerList(appName, address);
         } else {
             AppInfo appInfo = getAppInfo(appName);
             appInfo.setHandlerList(handlers.getContent());
-            log.info(">>>>>>>> rainc-job refresh handlers success {}", handlers.getContent());
+            log.info(JobLogPrefix.PREFIX+"刷新任务处理器成功 {}", handlers.getContent());
         }
     }
 }

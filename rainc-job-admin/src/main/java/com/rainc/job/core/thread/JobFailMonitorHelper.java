@@ -2,6 +2,7 @@ package com.rainc.job.core.thread;
 
 import com.rainc.job.core.biz.model.ShardingParam;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.trigger.TriggerTypeEnum;
 import com.rainc.job.model.JobInfoDO;
 import com.rainc.job.model.JobLogDO;
@@ -88,7 +89,7 @@ public class JobFailMonitorHelper {
                     }
                 } catch (Exception e) {
                     if (!toStop) {
-                        log.error(">>>>>>>>>>> rainc-job, job fail monitor thread error:", e);
+                        log.error(JobLogPrefix.PREFIX+"任务失败监听线程出错", e);
                     }
                 }
 

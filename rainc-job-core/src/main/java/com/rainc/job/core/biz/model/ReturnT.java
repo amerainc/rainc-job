@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * 通用reslut
  *
  * @Author rainc
  * @create 2020/12/7 21:54
+ * 通用reslut
  */
 @Data
 @NoArgsConstructor

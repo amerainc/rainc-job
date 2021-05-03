@@ -2,6 +2,7 @@ package com.rainc.job.core.thread;
 
 import com.rainc.job.core.biz.model.ShardingParam;
 import com.rainc.job.core.config.RaincJobAdminConfig;
+import com.rainc.job.core.constant.JobLogPrefix;
 import com.rainc.job.core.model.ExecutorInfo;
 import com.rainc.job.core.trigger.RaincJobTrigger;
 import com.rainc.job.core.trigger.TriggerTypeEnum;
@@ -103,7 +104,7 @@ public class JobTriggerPoolHelper {
     public void stop() {
         fastTriggerPool.shutdownNow();
         slowTriggerPool.shutdownNow();
-        log.info(">>>>>>>> rainc-job trigger thread pool shutdown success.");
+        log.info(JobLogPrefix.PREFIX+"触发线程池成功关闭");
     }
 
 

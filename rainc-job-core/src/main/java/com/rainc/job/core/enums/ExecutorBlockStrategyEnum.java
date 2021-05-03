@@ -5,6 +5,7 @@ import lombok.Getter;
 /**
  * @Author rainc
  * @create 2020/12/19 14:48
+ * 阻塞策略
  */
 public enum ExecutorBlockStrategyEnum {
     /**
