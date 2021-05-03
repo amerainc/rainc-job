@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 
@@ -22,7 +23,8 @@ import javax.annotation.Resource;
  * @create 2020/12/11 20:48
  */
 @Log4j2
-@Configuration
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(AdminProperties.class)
 public class RaincJobAdminConfig implements InitializingBean, DisposableBean {
     private static RaincJobAdminConfig adminConfig;
 

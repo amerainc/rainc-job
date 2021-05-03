@@ -3,7 +3,7 @@ rainc:
   job:
     executor:
       address:
-      admin-addresses: http://localhost:8081
+      admin-addresses: http://192.168.113.100:8081
       app-name: rainc-job-executor-sample
       task-pool-max: 1000
       access-token:
