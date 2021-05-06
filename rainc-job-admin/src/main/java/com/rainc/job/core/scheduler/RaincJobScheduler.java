@@ -193,8 +193,8 @@ public class RaincJobScheduler {
         }
         ReturnT<List<String>> handlers = executor.getExecutorBiz().handlers();
         if (handlers.getCode() == ReturnT.FAIL_CODE) {
-            log.info(JobLogPrefix.PREFIX+"刷新任务处理器失败 {} 重试...", executor);
-            refreshHandlerList(appName, address);
+            log.info(JobLogPrefix.PREFIX+"刷新任务处理器失败 {}...", executor);
+            //refreshHandlerList(appName, address);
         } else {
             AppInfo appInfo = getAppInfo(appName);
             appInfo.setHandlerList(handlers.getContent());
