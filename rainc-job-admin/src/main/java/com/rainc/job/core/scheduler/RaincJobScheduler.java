@@ -120,9 +120,7 @@ public class RaincJobScheduler {
             appInfo.getAddressMap().put(address, executorInfo);
             log.info(JobLogPrefix.PREFIX+"注册执行器 {}", executorInfo);
             //异步刷新执行器handler信息
-            if (isAuto) {
-                CompletableFuture.runAsync(() -> refreshHandlerList(appName, address));
-            }
+            CompletableFuture.runAsync(() -> refreshHandlerList(appName, address));
         }
         return executorInfo;
     }
