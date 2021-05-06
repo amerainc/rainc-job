@@ -14,7 +14,7 @@ public enum TriggerTypeEnum {
      */
     RETRY("失败重新触发");
 
-    private TriggerTypeEnum(String title) {
+    TriggerTypeEnum(String title) {
         this.title = title;
     }
 
