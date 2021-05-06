@@ -38,11 +38,8 @@ public class JobRegistryMonitorHelper {
                 try {
                     Date nowTime = new Date();
                     //删除数据库过期执行器
-                    List<JobRegistryDO> idl = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository()
-                            .findAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
-                    if (idl.size() > 0) {
-                        RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().deleteAll(idl);
-                    }
+                     RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository()
+                            .deleteAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
                     //删除缓存中失效执行器
                     Collection<AppInfo> allAppInfo = RaincJobScheduler.getAllAppInfo();
                     //取得所有手动注册的执行器
