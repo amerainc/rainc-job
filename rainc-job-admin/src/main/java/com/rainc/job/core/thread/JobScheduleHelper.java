@@ -83,7 +83,7 @@ public class JobScheduleHelper {
                                     //立即触发任务
                                     JobTriggerPoolHelper.trigger(jobInfoDO.getId(), TriggerTypeEnum.CRON, -1, null, null, null);
                                     if (nowTime + PRE_READ_MS > jobInfoDO.getTriggerNextTime()) {
-                                        //如果刷新后在未来5秒内，则放入时间环并刷新再次任务触发时间
+                                        //如果刷新后在未来5秒内，则放入时间轮并刷新再次任务触发时间
                                         //1.读取旧时间
                                         oldTriggerNextTime = jobInfoDO.getTriggerNextTime();
                                         //2.创建新时间
@@ -91,7 +91,7 @@ public class JobScheduleHelper {
                                         //3.尝试写入时间
                                         lockRet = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository()
                                                 .upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
-                                        //写入成功则放入时间环进行时间调度
+                                        //写入成功则放入时间轮进行时间调度
                                         if (lockRet < 1) {
                                             continue;
                                         }
@@ -103,7 +103,7 @@ public class JobScheduleHelper {
                                 //2.计算新时间
                                 refreshNextValidTime(jobInfoDO, new Date(oldTriggerNextTime));
                                 int lockRet = RaincJobAdminConfig.getAdminConfig().getJobInfoRepository().upDateNextTriggerTime(jobInfoDO.getId(), oldTriggerNextTime, jobInfoDO.getTriggerNextTime());
-                                //3.直接放入时间环并更新时间
+                                //3.直接放入时间轮并更新时间
                                 if (lockRet < 1) {
                                     continue;
                                 }
@@ -166,8 +166,8 @@ public class JobScheduleHelper {
                         }
                     }
 
-                    // 触发时间环
-                    log.debug(JobLogPrefix.PREFIX+"时间环信息 : " + nowSecond + " = " + ringItemData);
+                    // 触发时间轮
+                    log.debug(JobLogPrefix.PREFIX+"时间轮信息 : " + nowSecond + " = " + ringItemData);
                     if (ringItemData.size() > 0) {
                         //遍历当前时间的数据列表进行触发
                         for (long jobId : ringItemData) {
@@ -200,10 +200,10 @@ public class JobScheduleHelper {
     }
 
     private void pushRing(JobInfoDO info, long triggerTime) throws ParseException {
-        // 1、计算放入的时间环区域
+        // 1、计算放入的时间轮区域
         int ringSecond = (int) ((triggerTime / 1000) % 60);
 
-        // 2、放入时间环
+        // 2、放入时间轮
         pushTimeRing(ringSecond, info.getId());
 
 
@@ -244,15 +244,15 @@ public class JobScheduleHelper {
     }
 
     /**
-     * 将任务放进时间环
+     * 将任务放进时间轮
      *
-     * @param ringSecond 时间环分钟位
+     * @param ringSecond 时间轮分钟位
      * @param jobId      任务id
      */
     private void pushTimeRing(int ringSecond, long jobId) {
         List<Long> ringItemData = ringData.computeIfAbsent(ringSecond, ArrayList::new);
         ringItemData.add(jobId);
 
-        log.debug(JobLogPrefix.PREFIX+"任务放入时间环 : " + ringSecond + " = " + ringItemData);
+        log.debug(JobLogPrefix.PREFIX+"任务放入时间轮 : " + ringSecond + " = " + ringItemData);
     }
 }
