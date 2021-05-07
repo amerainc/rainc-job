@@ -67,7 +67,7 @@ public class RaincJobScheduler {
         List<JobRegistryDO> jobRegistryDOList = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().findAll();
         if (jobRegistryDOList.size() > 0) {
             for (JobRegistryDO jobRegistryDO : jobRegistryDOList) {
-                registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAppName(), true);
+                registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAddress(), true);
             }
         }
     }
