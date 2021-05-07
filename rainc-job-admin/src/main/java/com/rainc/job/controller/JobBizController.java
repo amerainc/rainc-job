@@ -48,7 +48,7 @@ public class JobBizController {
     @ApiOperation("删除执行器接口")
     @DeleteMapping("/registry")
     public ReturnT<String> removeExecutor(@RequestBody RegistryParam registryParam) {
-        return adminBiz.registry(registryParam);
+        return adminBiz.registryRemove(registryParam);
     }
 
     @ApiOperation("任务回调接口")
