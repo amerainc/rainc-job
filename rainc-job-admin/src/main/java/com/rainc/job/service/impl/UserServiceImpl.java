@@ -48,13 +48,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ReturnT<String> login(JobUserDO jobUserDO) {
+        //通过用户名查找数据库中对应的用户
         JobUserDO existJobUserDO = jobUserRepository.findByUsername(jobUserDO.getUsername().trim())
                 .orElseThrow(() -> new RaincJobException("账号或密码错误"));
+        //为了数据的安全性，实际数据库中保存的是md5加密后的用户密码，因此需要对用户密码进行加密
         String passwordMd5 = DigestUtils.md5DigestAsHex(jobUserDO.getPassword().trim().getBytes());
+        //密码校验
         if (!passwordMd5.equals(existJobUserDO.getPassword())) {
             throw new RaincJobException("账号或密码错误");
         }
+        //校验成功生成用户凭证
         String token = makeToken(existJobUserDO);
+        //将用户凭证返回给前端
         return new ReturnT<>(token);
     }
 

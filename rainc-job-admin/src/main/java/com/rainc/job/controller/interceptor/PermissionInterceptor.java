@@ -32,6 +32,7 @@ public class PermissionInterceptor implements AsyncHandlerInterceptor {
         }
         //拦截所有方法
         HandlerMethod method = (HandlerMethod) handler;
+        //查看是否标有权限注解
         PermissionLimit permission = method.getMethodAnnotation(PermissionLimit.class);
         //默认需要登录
         boolean needLogin = true;

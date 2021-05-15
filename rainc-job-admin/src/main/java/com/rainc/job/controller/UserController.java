@@ -39,7 +39,7 @@ public class UserController {
         return userService.update(jobUserDO);
     }
 
-    @ApiOperation("更新")
+    @ApiOperation("删除")
     @DeleteMapping("/{id}")
     @PermissionLimit(admin = true)
     public ReturnT<String> delete(@PathVariable long id) {

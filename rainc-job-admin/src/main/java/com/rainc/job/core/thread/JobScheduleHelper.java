@@ -108,7 +108,6 @@ public class JobScheduleHelper {
                                     continue;
                                 }
                                 pushRing(jobInfoDO, oldTriggerNextTime);
-
                             }
                         }
                         //log.info(">>>>>>>> rainc-job cost time={}", timer.interval());
