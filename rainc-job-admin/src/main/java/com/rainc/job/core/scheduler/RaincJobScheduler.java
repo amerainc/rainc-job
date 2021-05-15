@@ -59,18 +59,15 @@ public class RaincJobScheduler {
     private static void initAppInfoRepository() {
         Date nowTime = new Date();
         //删除数据库过期执行器
-        List<JobRegistryDO> idl = RaincJobAdminConfig.getAdminConfig()
+        RaincJobAdminConfig.getAdminConfig()
                 .getJobRegistryRepository()
-                .findAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
-        //删除过期执行器
-        if (idl.size() > 0) {
-            RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().deleteAll(idl);
-        }
+                .deleteAllByUpdateTimeBefore(MyDateUtil.calDead(nowTime));
+
         //初始化执行器缓存
         List<JobRegistryDO> jobRegistryDOList = RaincJobAdminConfig.getAdminConfig().getJobRegistryRepository().findAll();
         if (jobRegistryDOList.size() > 0) {
             for (JobRegistryDO jobRegistryDO : jobRegistryDOList) {
-                registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAppName(), true);
+                registerExecutor(jobRegistryDO.getAppName(), jobRegistryDO.getAddress(), true);
             }
         }
     }
@@ -107,7 +104,7 @@ public class RaincJobScheduler {
         if (executorInfo != null) {
             //如果已注册则更新时间
             executorInfo.setUpdateTime(new Date());
-            log.debug(JobLogPrefix.PREFIX+"更新执行器 {}", executorInfo);
+            log.debug(JobLogPrefix.PREFIX + "更新执行器 {}", executorInfo);
         } else {
             //否则注册
             executorInfo = ExecutorInfo.builder()
@@ -118,11 +115,9 @@ public class RaincJobScheduler {
                     .executorBiz(BizFactory.createBiz(address, RaincJobAdminConfig.getAdminConfig().getAccessToken(), ExecutorBiz.class))
                     .build();
             appInfo.getAddressMap().put(address, executorInfo);
-            log.info(JobLogPrefix.PREFIX+"注册执行器 {}", executorInfo);
+            log.info(JobLogPrefix.PREFIX + "注册执行器 {}", executorInfo);
             //异步刷新执行器handler信息
-            if (isAuto) {
-                CompletableFuture.runAsync(() -> refreshHandlerList(appName, address));
-            }
+            CompletableFuture.runAsync(() -> refreshHandlerList(appName, address));
         }
         return executorInfo;
     }
@@ -176,7 +171,7 @@ public class RaincJobScheduler {
             return null;
         }
         ExecutorInfo executorInfo = appInfo.getAddressMap().remove(address);
-        log.info(JobLogPrefix.PREFIX+"移除执行器 {}", executorInfo);
+        log.info(JobLogPrefix.PREFIX + "移除执行器 {}", executorInfo);
         return executorInfo;
     }
 
@@ -193,12 +188,12 @@ public class RaincJobScheduler {
         }
         ReturnT<List<String>> handlers = executor.getExecutorBiz().handlers();
         if (handlers.getCode() == ReturnT.FAIL_CODE) {
-            log.info(JobLogPrefix.PREFIX+"刷新任务处理器失败 {} 重试...", executor);
-            refreshHandlerList(appName, address);
+            log.info(JobLogPrefix.PREFIX + "刷新任务处理器失败 {}...", executor);
+            //refreshHandlerList(appName, address);
         } else {
             AppInfo appInfo = getAppInfo(appName);
             appInfo.setHandlerList(handlers.getContent());
-            log.info(JobLogPrefix.PREFIX+"刷新任务处理器成功 {}", handlers.getContent());
+            log.info(JobLogPrefix.PREFIX + "刷新任务处理器成功 {}", handlers.getContent());
         }
     }
 }

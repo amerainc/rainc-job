@@ -147,9 +147,9 @@ public class RaincJobTrigger {
                 //分片参数
                 .shardingParam(shardingParam)
                 .build();
-        if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST != executorRouteStrategyEnum) {
-            shardingParam = null;
-        }
+        //if (ExecutorRouteStrategyEnum.SHARDING_BROADCAST != executorRouteStrategyEnum) {
+        //    shardingParam = null;
+        //}
 
         //初始化路由地址
         ExecutorInfo executorInfo = null;

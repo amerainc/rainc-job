@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @Author rainc
  * @create 2021/1/2 11:29
+ * 日志报表
  */
 @Log4j2
 public class JobLogReportHelper {

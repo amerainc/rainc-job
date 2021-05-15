@@ -5,22 +5,20 @@ import com.rainc.job.core.context.RaincJobHelper;
 import com.rainc.job.core.handler.annotation.RaincJob;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * @Author rainc
  * @create 2020/10/24 12:24
  */
 @Component
 public class SampleRaincJob {
-    /**
-     * 普通任务
-     *
-     * @param param
-     * @return
-     * @throws Exception
-     */
+
     @RaincJob("demoHandler")
     public ReturnT<String> test(String param) throws Exception {
-        System.out.println(param);
+        System.out.println(new Date() + ":" + param);
+        System.out.println();
+        int a = 1 / 0;
         return ReturnT.SUCCESS;
     }
 
@@ -33,9 +31,15 @@ public class SampleRaincJob {
      * @throws Exception
      */
     @RaincJob("shardingHandler")
-    public ReturnT<String> test3(String param) throws Exception {
+    public ReturnT<String> shardingHandler(String param) throws Exception {
         return RaincJobHelper.runShardTask((index, total) -> {
-            System.out.println("分片任务-----" + index + "------" + total);
+            int length = param.length();
+            int step = length / total;
+            if (index < total - 1) {
+                System.out.println(param.substring(step * index, step * (index + 1)));
+            } else {
+                System.out.println(param.substring(step * index));
+            }
             return ReturnT.SUCCESS;
         });
     }
