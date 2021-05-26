@@ -11,6 +11,7 @@
         <module>rainc-job-core</module>
         <module>rainc-job-executor-samples</module>
         <module>rainc-job-admin</module>
+        <module>spring-boot-starter-rainc-job</module>
     </modules>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
