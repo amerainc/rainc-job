@@ -6,6 +6,7 @@ import com.rainc.job.core.handler.annotation.RaincJob;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author rainc
@@ -22,6 +23,13 @@ public class SampleRaincJob {
         return ReturnT.SUCCESS;
     }
 
+    @RaincJob("demoHandler2")
+    public ReturnT<String> test2(String param) throws Exception {
+        System.out.println("开始执行："+new Date());
+        TimeUnit.SECONDS.sleep(30);
+        System.out.println("执行结束："+new Date());
+        return ReturnT.SUCCESS;
+    }
 
     /**
      * 分片任务
