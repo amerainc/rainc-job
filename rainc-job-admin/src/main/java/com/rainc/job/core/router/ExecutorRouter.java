@@ -1,4 +1,4 @@
-package com.rainc.job.router;
+package com.rainc.job.core.router;
 
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;

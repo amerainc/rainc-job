@@ -1,9 +1,9 @@
-package com.rainc.job.router.strategy;
+package com.rainc.job.core.router.strategy;
 
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
 import com.rainc.job.core.model.ExecutorInfo;
-import com.rainc.job.router.ExecutorRouter;
+import com.rainc.job.core.router.ExecutorRouter;
 
 import java.util.List;
 import java.util.Random;

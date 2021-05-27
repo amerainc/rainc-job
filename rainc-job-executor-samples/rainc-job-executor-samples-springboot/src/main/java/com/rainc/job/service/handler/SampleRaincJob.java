@@ -15,19 +15,44 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SampleRaincJob {
 
+    /**
+     * 普通处理器
+     *
+     * @param param
+     * @return
+     * @throws Exception
+     */
     @RaincJob("demoHandler")
-    public ReturnT<String> test(String param) throws Exception {
+    public ReturnT<String> demoHandler(String param) throws Exception {
         System.out.println(new Date() + ":" + param);
-        System.out.println();
+        return ReturnT.SUCCESS;
+    }
+
+    /**
+     * 异常任务
+     * @param param
+     * @return
+     * @throws Exception
+     */
+    @RaincJob("exceptionHandler")
+    public ReturnT<String> exceptionHandler(String param) throws Exception {
+        System.out.println(new Date() + ":" + param);
         int a = 1 / 0;
         return ReturnT.SUCCESS;
     }
 
+    /**
+     * 阻塞任务测试
+     *
+     * @param param
+     * @return
+     * @throws Exception
+     */
     @RaincJob("demoHandler2")
     public ReturnT<String> test2(String param) throws Exception {
-        System.out.println("开始执行："+new Date());
-        TimeUnit.SECONDS.sleep(30);
-        System.out.println("执行结束："+new Date());
+        System.out.println("开始执行：" + new Date());
+        TimeUnit.SECONDS.sleep(15);
+        System.out.println("执行结束：" + new Date());
         return ReturnT.SUCCESS;
     }
 

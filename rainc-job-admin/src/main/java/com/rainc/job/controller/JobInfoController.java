@@ -5,7 +5,7 @@ import com.rainc.job.core.enums.ExecutorBlockStrategyEnum;
 import com.rainc.job.core.thread.JobTriggerPoolHelper;
 import com.rainc.job.core.trigger.TriggerTypeEnum;
 import com.rainc.job.model.JobInfoDO;
-import com.rainc.job.router.ExecutorRouteStrategyEnum;
+import com.rainc.job.core.router.ExecutorRouteStrategyEnum;
 import com.rainc.job.service.JobInfoService;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;

@@ -1,7 +1,7 @@
-package com.rainc.job.router;
+package com.rainc.job.core.router;
 
-import com.rainc.job.router.strategy.ExecutorRouteFirst;
-import com.rainc.job.router.strategy.ExecutorRouteRound;
+import com.rainc.job.core.router.strategy.ExecutorRouteFirst;
+import com.rainc.job.core.router.strategy.ExecutorRouteRound;
 import lombok.Getter;
 
 /**

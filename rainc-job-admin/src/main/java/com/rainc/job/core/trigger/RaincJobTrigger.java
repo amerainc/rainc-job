@@ -15,7 +15,7 @@ import com.rainc.job.core.util.IpUtil;
 import com.rainc.job.model.JobGroupDO;
 import com.rainc.job.model.JobInfoDO;
 import com.rainc.job.model.JobLogDO;
-import com.rainc.job.router.ExecutorRouteStrategyEnum;
+import com.rainc.job.core.router.ExecutorRouteStrategyEnum;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;

@@ -10,7 +10,7 @@ import com.rainc.job.model.JobInfoDO;
 import com.rainc.job.respository.JobGroupRepository;
 import com.rainc.job.respository.JobInfoRepository;
 import com.rainc.job.respository.JobLogRepository;
-import com.rainc.job.router.ExecutorRouteStrategyEnum;
+import com.rainc.job.core.router.ExecutorRouteStrategyEnum;
 import com.rainc.job.service.JobInfoService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Example;
@@ -25,6 +25,7 @@ import javax.transaction.Transactional;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author rainc
@@ -95,6 +96,7 @@ public class JobInfoServiceImpl implements JobInfoService {
         //存入数据库
         jobInfoDO.setAddTime(jobInfoDO.getAddTime() != null ? jobInfoDO.getAddTime() : new Date());
         jobInfoDO.setUpDateTime(new Date());
+        jobInfoDO.setTriggerStatus(Optional.of(jobInfoDO.getTriggerStatus()).orElse(false));
         jobInfoDO.setExecutorTimeOut(jobInfoDO.getExecutorTimeOut() != null ? jobInfoDO.getExecutorTimeOut() : 0);
         jobInfoDO.setTriggerLastTime(jobInfoDO.getTriggerLastTime() != null ? jobInfoDO.getTriggerNextTime() : 0L);
         jobInfoDO.setTriggerNextTime(jobInfoDO.getTriggerNextTime() != null ? jobInfoDO.getTriggerNextTime() : 0L);
@@ -172,7 +174,7 @@ public class JobInfoServiceImpl implements JobInfoService {
 
     @Override
     public long count() {
-      return jobInfoRepository.count();
+        return jobInfoRepository.count();
     }
 
 
