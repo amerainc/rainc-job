@@ -17,7 +17,7 @@ public class RaincJobAdminApplication {
 		stopWatch.start();
 		SpringApplication.run(RaincJobAdminApplication.class, args);
 		stopWatch.stop();
-		log.info(stopWatch.getLastTaskTimeMillis());
+		log.info("启动成功耗时：{}毫秒",stopWatch.getLastTaskTimeMillis());
 	}
 
 }
