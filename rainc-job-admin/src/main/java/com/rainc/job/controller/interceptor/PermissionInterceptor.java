@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @Component
 public class PermissionInterceptor implements AsyncHandlerInterceptor {
-    private static final String LOGIN_IDENTITY_KEY = "RAINC-JOB-IDENTITY";
+    private static final String LOGIN_IDENTITY_KEY = "rainc-job-identify";
     @Resource
     UserService userService;
 
