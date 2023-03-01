@@ -49,7 +49,7 @@ public class JobScheduleHelper {
                     log.error(e.getMessage(), e);
                 }
             }
-            // pre-read count: treadpool-size * trigger-qps (each trigger cost 50ms, qps = 1000/50 = 20)
+            // 预读数量目前参考xxl-job treadpool-size * trigger-qps (each trigger cost 50ms, qps = 1000/50 = 20)
             int preReadCount = (RaincJobAdminConfig.getAdminConfig().getTriggerPoolFastMax() + RaincJobAdminConfig.getAdminConfig().gettriggerPoolSlowMax()) * 20;
             log.info(JobLogPrefix.PREFIX+"预读数量={}", preReadCount);
             //jpa 分页

@@ -31,7 +31,7 @@ public class JobTriggerPoolHelper {
                 RaincJobAdminConfig.getAdminConfig().getTriggerPoolFastMax(),
                 60L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(1000),
+                new LinkedBlockingQueue<>(1000),
                 r -> new Thread(r, "rainc-job, admin JobTriggerPoolHelper-fastTriggerPool-" + r.hashCode()));
 
         slowTriggerPool = new ThreadPoolExecutor(
@@ -39,7 +39,7 @@ public class JobTriggerPoolHelper {
                 RaincJobAdminConfig.getAdminConfig().gettriggerPoolSlowMax(),
                 60L,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(2000),
+                new LinkedBlockingQueue<>(2000),
                 r -> new Thread(r, "rainc-job, admin JobTriggerPoolHelper-slowTriggerPool-" + r.hashCode()));
     }
 
