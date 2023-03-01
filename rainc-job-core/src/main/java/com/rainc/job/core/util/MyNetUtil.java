@@ -8,9 +8,9 @@ import cn.hutool.core.net.NetUtil;
  */
 public class MyNetUtil {
     /**
-     * find avaliable port
+     * 找到可用的端口
      *
-     * @param defaultPort
+     * @param defaultPort 默认端口
      * @return
      */
     public static int findAvailablePort(int defaultPort) {

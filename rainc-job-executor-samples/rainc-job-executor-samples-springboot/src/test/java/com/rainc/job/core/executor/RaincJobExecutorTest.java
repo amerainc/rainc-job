@@ -18,6 +18,6 @@ public class RaincJobExecutorTest {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
-        RaincJobExecutor.registJobHandler("aaa", new MethodJobHandler(new Object(), jobHandlerRepositoryTest));
+        RaincJobExecutor.registryJobHandler("aaa", new MethodJobHandler(new Object(), jobHandlerRepositoryTest));
     }
 }

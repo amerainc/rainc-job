@@ -79,7 +79,7 @@ public class RaincJobSpringExecutor extends RaincJobExecutor implements Initiali
 
             //注册任务处理器
             method.setAccessible(true);
-            registJobHandler(name, new MethodJobHandler(bean, method));
+            registryJobHandler(name, new MethodJobHandler(bean, method));
         });
         return true;
     }

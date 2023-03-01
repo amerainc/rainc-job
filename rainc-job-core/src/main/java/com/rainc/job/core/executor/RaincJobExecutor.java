@@ -108,7 +108,7 @@ public class RaincJobExecutor {
      */
     private static final ConcurrentMap<String, IJobHandler> jobHandlerRepository = new ConcurrentHashMap<>();
 
-    public static IJobHandler registJobHandler(String name, IJobHandler jobHandler) {
+    public static IJobHandler registryJobHandler(String name, IJobHandler jobHandler) {
         log.info(JobLogPrefix.PREFIX+"任务处理器注册成功,name:{},jobHandler:{}", name, jobHandler);
         return jobHandlerRepository.put(name, jobHandler);
     }
