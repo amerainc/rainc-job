@@ -1,5 +1,7 @@
 package com.rainc.job.core.alarm.impl;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import com.rainc.job.core.alarm.JobAlarm;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.config.RaincJobAdminConfig;
@@ -8,12 +10,17 @@ import com.rainc.job.model.JobGroupDO;
 import com.rainc.job.model.JobInfoDO;
 import com.rainc.job.model.JobLogDO;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -43,16 +50,20 @@ public class EmailJobAlarm implements JobAlarm {
     public boolean doAlarm(JobInfoDO info, JobLogDO jobLog) {
         boolean alarmResult = true;
 
-        // 发送监控右键
+        // 发送监控邮件
         if (info != null && info.getAlarmEmail() != null && info.getAlarmEmail().trim().length() > 0) {
 
             // 告警信息
-            String alarmContent = "Alarm Job LogId=" + jobLog.getId();
+            StringBuilder alarmContent = new StringBuilder();
+            alarmContent.append("<br>Alarm Job LogId=");
+            alarmContent.append(jobLog.getId());
             if (jobLog.getTriggerCode() != ReturnT.SUCCESS_CODE) {
-                alarmContent += "<br>TriggerMsg=<br>" + jobLog.getTriggerMsg();
+                alarmContent.append( "<br><h5>TriggerMsg</h5>");
+                alarmContent.append(jobLog.getTriggerMsg());
             }
             if (jobLog.getHandleCode() > 0 && jobLog.getHandleCode() != ReturnT.SUCCESS_CODE) {
-                alarmContent += "<br>HandleCode=" + jobLog.getHandleMsg();
+                alarmContent.append("<br>HandleCode=");
+                alarmContent.append(jobLog.getHandleMsg());
             }
 
             // 邮件信息
@@ -64,7 +75,7 @@ public class EmailJobAlarm implements JobAlarm {
                     optionalJobGroupDO.isPresent() ? optionalJobGroupDO.get().getTitle() : "null",
                     info.getId(),
                     info.getJobDesc(),
-                    alarmContent);
+                    alarmContent.toString());
 
             Set<String> emailSet = new HashSet<String>(Arrays.asList(info.getAlarmEmail().split(",")));
             for (String email : emailSet) {
@@ -80,7 +91,7 @@ public class EmailJobAlarm implements JobAlarm {
                     helper.setText(content, true);
                     RaincJobAdminConfig.getAdminConfig().getMailSender().send(mimeMessage);
                 } catch (Exception e) {
-                    log.error(JobLogPrefix.PREFIX+"任务失败告警邮件发送失败, JobLogId:{}", jobLog.getId(), e);
+                    log.error(JobLogPrefix.PREFIX + "任务失败告警邮件发送失败, JobLogId:{}", jobLog.getId(), e);
 
                     alarmResult = false;
                 }
@@ -91,35 +102,18 @@ public class EmailJobAlarm implements JobAlarm {
         return alarmResult;
     }
 
+
     /**
      * 邮件模板
      *
      * @return
      */
-    private static String loadEmailJobAlarmTemplate() {
-
-        return "<h5>" + "监控告警明细" + "：</span>" +
-                "<table border=\"1\" cellpadding=\"3\" style=\"border-collapse:collapse; width:80%;\" >\n" +
-                "   <thead style=\"font-weight: bold;color: #ffffff;background-color: #ff8c00;\" >" +
-                "      <tr>\n" +
-                "         <td width=\"20%\" >" + "执行器" + "</td>\n" +
-                "         <td width=\"10%\" >" + "任务ID" + "</td>\n" +
-                "         <td width=\"20%\" >" + "任务描述" + "</td>\n" +
-                "         <td width=\"10%\" >" + "告警类型" + "</td>\n" +
-                "         <td width=\"10%\" >" + "告警类型" + "</td>\n" +
-                "         <td width=\"40%\" >" + "告警内容" + "</td>\n" +
-                "      </tr>\n" +
-                "   </thead>\n" +
-                "   <tbody>\n" +
-                "      <tr>\n" +
-                "         <td>{0}</td>\n" +
-                "         <td>{1}</td>\n" +
-                "         <td>{2}</td>\n" +
-                "         <td>" + "调度失败" + "</td>\n" +
-                "         <td>{3}</td>\n" +
-                "      </tr>\n" +
-                "   </tbody>\n" +
-                "</table>";
+    private String loadEmailJobAlarmTemplate()  {
+        try ( InputStream inputStream=  EmailJobAlarm.class.getResourceAsStream("/template/alarmTemplate.html")){
+           return IoUtil.readUtf8(inputStream);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }
 
