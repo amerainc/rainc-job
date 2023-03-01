@@ -36,10 +36,10 @@ public class PermissionInterceptor implements AsyncHandlerInterceptor {
         PermissionLimit permission = method.getMethodAnnotation(PermissionLimit.class);
         //默认需要登录
         boolean needLogin = true;
-        boolean needAdminuser = false;
+        boolean needAdminUser = false;
         if (permission != null) {
             needLogin = permission.limit();
-            needAdminuser = permission.admin();
+            needAdminUser = permission.admin();
         }
 
         if (needLogin) {
@@ -53,7 +53,7 @@ public class PermissionInterceptor implements AsyncHandlerInterceptor {
                     throw RaincJobException.NOT_LOGIN;
                 }
                 //没有权限
-                if (needAdminuser && jobUserDO.getRole() != 1) {
+                if (needAdminUser && jobUserDO.getRole() != 1) {
                     throw RaincJobException.PERMISSION;
                 }
                 request.setAttribute("jobUserDO", jobUserDO);

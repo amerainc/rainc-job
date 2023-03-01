@@ -55,7 +55,6 @@ public class JobGroupController {
 
     @DeleteMapping("/{id}")
     public ReturnT<String> delete(@PathVariable long id) {
-
         return jobGroupService.delete(id);
     }
 

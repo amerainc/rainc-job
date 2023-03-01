@@ -10,12 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * token拦截器
  * @Author rainc
  * @create 2021/1/21 19:30
  */
 
 @Component
-public class AccessTokenInteceptor implements AsyncHandlerInterceptor {
+public class AccessTokenInterceptor implements AsyncHandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if (StrUtil.isBlank(RaincJobAdminConfig.getAdminConfig().getAccessToken())) {

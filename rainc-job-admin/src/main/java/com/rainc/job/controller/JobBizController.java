@@ -51,6 +51,11 @@ public class JobBizController {
         return adminBiz.registryRemove(registryParam);
     }
 
+    /**
+     * 任务回调接口
+     * @param callbackParamList 回调参数列表
+     * @return 回调成功失败
+     */
     @ApiOperation("任务回调接口")
     @PostMapping("/callback")
     public ReturnT<String> callBack(@RequestBody List<HandleCallbackParam> callbackParamList) {

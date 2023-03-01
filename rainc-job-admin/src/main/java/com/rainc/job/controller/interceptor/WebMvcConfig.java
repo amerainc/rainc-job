@@ -12,14 +12,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Resource
     private PermissionInterceptor permissionInterceptor;
     @Resource
-    private AccessTokenInteceptor accessTokenInteceptor;
+    private AccessTokenInterceptor accessTokenInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(permissionInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/biz/**");
-        registry.addInterceptor(accessTokenInteceptor)
+        registry.addInterceptor(accessTokenInterceptor)
                 .addPathPatterns("/biz/**");
     }
 
