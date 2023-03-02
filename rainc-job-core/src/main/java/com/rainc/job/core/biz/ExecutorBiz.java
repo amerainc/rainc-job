@@ -23,7 +23,7 @@ public interface ExecutorBiz {
     /**
      * 触发任务
      *
-     * @param triggerParam
+     * @param triggerParam 出发参数
      * @return
      */
     @RequestLine("POST /run")

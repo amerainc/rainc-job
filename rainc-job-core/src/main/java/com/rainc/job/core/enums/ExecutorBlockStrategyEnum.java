@@ -2,6 +2,10 @@ package com.rainc.job.core.enums;
 
 import lombok.Getter;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * @Author rainc
  * @create 2020/12/19 14:48
@@ -31,14 +35,15 @@ public enum ExecutorBlockStrategyEnum {
         this.title = title;
     }
 
+    private static final Map<String,ExecutorBlockStrategyEnum> ENUMS;
+    static {
+        ENUMS=Arrays.stream(ExecutorBlockStrategyEnum.values()).collect(Collectors.toMap(ExecutorBlockStrategyEnum::name,e->e));
+    }
+
     public static ExecutorBlockStrategyEnum match(String name, ExecutorBlockStrategyEnum defaultItem) {
-        if (name != null) {
-            for (ExecutorBlockStrategyEnum item : ExecutorBlockStrategyEnum.values()) {
-                if (item.name().equals(name)) {
-                    return item;
-                }
-            }
-        }
-        return defaultItem;
+       return ENUMS.getOrDefault(name,defaultItem);
+    }
+    public static ExecutorBlockStrategyEnum match(String name) {
+        return ENUMS.getOrDefault(name,null);
     }
 }

@@ -1,5 +1,6 @@
 package com.rainc.job.core.thread;
 
+import cn.hutool.core.map.MapUtil;
 import com.rainc.job.core.biz.model.HandleCallbackParam;
 import com.rainc.job.core.biz.model.ReturnT;
 import com.rainc.job.core.biz.model.TriggerParam;
@@ -67,6 +68,10 @@ public class JobThread extends Thread {
         this.triggerLogIdSet = Collections.synchronizedSet(new HashSet<>());
     }
 
+    /**
+     * 并发设置
+     * @param isConcurrent 是否并发
+     */
     public void setConcurrent(boolean isConcurrent) {
         this.isConcurrent = isConcurrent;
         if (isConcurrent && concurrentTaskMap == null) {
@@ -91,7 +96,7 @@ public class JobThread extends Thread {
     public ReturnT<String> pushTriggerQueue(TriggerParam triggerParam) {
         // 检查日志id是否已经存在
         if (triggerLogIdSet.contains(triggerParam.getLogId())) {
-            log.info(JobLogPrefix.PREFIX+"重复触发任务, logId:{}", triggerParam.getLogId());
+            log.info(JobLogPrefix.PREFIX + "重复触发任务, logId:{}", triggerParam.getLogId());
             return new ReturnT<>(ReturnT.FAIL_CODE, "重复触发任务, logId:" + triggerParam.getLogId());
         }
 
@@ -167,7 +172,7 @@ public class JobThread extends Thread {
                 } else {
                     if (idleTimes > 30) {
                         //避免并发问题
-                        if (triggerQueue.size() == 0 && (concurrentTaskMap != null && concurrentTaskMap.size() > 0)) {
+                        if (triggerQueue.size() == 0 && MapUtil.isNotEmpty(concurrentTaskMap)) {
                             RaincJobExecutor.removeJobThread(jobId, "执行器空闲时间超限制。");
                         }
                     }
@@ -187,7 +192,6 @@ public class JobThread extends Thread {
         while (triggerQueue != null && triggerQueue.size() > 0) {
             TriggerParam triggerParam = triggerQueue.poll();
             if (triggerParam != null) {
-                // is killed
                 ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务未执行，在队列中, 被终止。]");
                 TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
             }

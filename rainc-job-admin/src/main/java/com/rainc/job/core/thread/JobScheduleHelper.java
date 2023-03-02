@@ -33,6 +33,9 @@ public class JobScheduleHelper {
     private Thread ringThread;
     private volatile boolean scheduleThreadToStop = false;
     private volatile boolean ringThreadToStop = false;
+    /**
+     * 时间环
+     */
     private static Map<Integer, List<Long>> ringData = new ConcurrentHashMap<>();
 
     public void start() {

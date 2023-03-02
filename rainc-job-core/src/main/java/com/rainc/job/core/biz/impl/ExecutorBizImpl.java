@@ -9,6 +9,7 @@ import com.rainc.job.core.handler.IJobHandler;
 import com.rainc.job.core.thread.JobThread;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Author rainc
@@ -29,28 +30,27 @@ public class ExecutorBizImpl implements ExecutorBiz {
 
     @Override
     public ReturnT<String> run(TriggerParam triggerParam) {
-        //载入旧任务处理器
+        //载入旧任务线程
         JobThread jobThread = RaincJobExecutor.loadJobThread(triggerParam.getJobId());
+        //载入旧任务处理器
         IJobHandler jobHandler = jobThread != null ? jobThread.getHandler() : null;
         String removeOldReason = null;
+
         // 载入新任务处理器
         IJobHandler newJobHandler = RaincJobExecutor.loadJobHandler(triggerParam.getExecutorHandler());
+        //验证新任务处理器是否存在
+        if (newJobHandler==null){
+            return new ReturnT<>(ReturnT.FAIL_CODE, "找不到任务处理器 [" + triggerParam.getExecutorHandler() + "]");
+        }
 
         // 验证任务处理器是否一致
-        if (jobThread != null && jobHandler != newJobHandler) {
+        if (jobHandler != newJobHandler) {
             // 更换任务处理器需要销毁旧任务线程
             removeOldReason = "变更任务处理器并销毁旧任务线程。";
             jobThread = null;
-            jobHandler = null;
-        }
-
-        // 验证任务处理器是否存在
-        if (jobHandler == null) {
             jobHandler = newJobHandler;
-            if (jobHandler == null) {
-                return new ReturnT<String>(ReturnT.FAIL_CODE, "找不到任务处理器 [" + triggerParam.getExecutorHandler() + "]");
-            }
         }
+        //载入阻塞策略
         ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy(), null);
         //执行器阻塞策略
         if (jobThread != null) {

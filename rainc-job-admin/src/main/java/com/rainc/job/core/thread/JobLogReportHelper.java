@@ -32,7 +32,7 @@ public class JobLogReportHelper {
     public void start() {
         logrThread = new Thread(() -> {
 
-            // last clean log time
+            //最后一次清理日志时间
             long lastCleanLogTime = 0;
 
 

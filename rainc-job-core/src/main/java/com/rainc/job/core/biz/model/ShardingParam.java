@@ -20,6 +20,9 @@ public class ShardingParam implements Serializable {
      * 索引
      */
     private int index;
+    /**
+     * 总数
+     */
     private int total;
 
     @Override
@@ -37,7 +40,7 @@ public class ShardingParam implements Serializable {
 
     private static boolean isNumeric(String str) {
         try {
-            int result = Integer.valueOf(str);
+            Integer.valueOf(str);
             return true;
         } catch (NumberFormatException e) {
             return false;

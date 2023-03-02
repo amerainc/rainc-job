@@ -13,8 +13,8 @@ public interface JobAlarm {
     /**
      * 任务告警
      *
-     * @param info
-     * @param jobLog
+     * @param info 任务信息
+     * @param jobLog 任务日志
      * @return
      */
     boolean doAlarm(JobInfoDO info, JobLogDO jobLog);

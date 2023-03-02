@@ -73,7 +73,7 @@ public class JobFailMonitorHelper {
                             }
 
                             //2.失败邮件报警监控
-                            int newAlarmStatus = 0;        // 告警状态：0-默认、-1=锁定状态、1-无需告警、2-告警成功、3-告警失败
+                            int newAlarmStatus;        // 告警状态：0-默认、-1=锁定状态、1-无需告警、2-告警成功、3-告警失败
                             if (optionalJobInfoDO.isPresent() && optionalJobInfoDO.get().getAlarmEmail() != null && optionalJobInfoDO.get().getAlarmEmail().trim().length() > 0) {
                                 //如果有info，且邮箱不为空，则触发告警
                                 boolean alarmResult = RaincJobAdminConfig.getAdminConfig().getJobAlarmer().alarm(optionalJobInfoDO.get(), jobLogDO);
