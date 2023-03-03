@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.*;
 
 /**
+ * 任务池工具
  * @Author rainc
  * @create 2020/12/19 19:38
  */
@@ -55,8 +56,9 @@ public class TaskPoolHelper {
                 );
                 //设置上下文
                 RaincJobContext.setRaincJobContext(raincJobContext);
-                if (triggerParam.getExecutorTimeout() > 0) {
-                    //如果有超时时间则表示超时任务
+                //如果有超时时间则表示超时任务
+                if (triggerParam.isTimeoutTask()) {
+                    //定义一个超时任务
                     FutureTask<ReturnT<String>> futureTask = new FutureTask<>(() -> {
                         //设置上下文
                         RaincJobContext.setRaincJobContext(raincJobContext);
@@ -69,7 +71,6 @@ public class TaskPoolHelper {
                         }
                         return returnT;
                     });
-
                     taskPool.execute(futureTask);
                     try {
                         //阻塞获取
@@ -81,8 +82,8 @@ public class TaskPoolHelper {
                         //中断该任务线程
                         futureTask.cancel(true);
                     }
-                } else {
-                    //直接执行
+                } else {//阻塞任务
+                    //在当先线程直接执行
                     executeResult = handler.execute(triggerParam.getExecutorParams());
                 }
 
@@ -96,6 +97,7 @@ public class TaskPoolHelper {
                     executeResult.setContent(null);    // limit obj size
                 }
             } catch (Exception e) {
+                //拿到实际的异常
                 if (e instanceof InvocationTargetException) {
                     e = (Exception) ((InvocationTargetException) e).getTargetException();
                     if (e instanceof InterruptedException) {
@@ -153,5 +155,16 @@ public class TaskPoolHelper {
      */
     public static Future<Boolean> runTask(TriggerParam triggerParam, IJobHandler handler, Semaphore semaphore) {
         return helper.addTask(triggerParam, handler, semaphore);
+    }
+
+    /**
+     * 运行任务
+     *
+     * @param triggerParam
+     * @param handler
+     * @return
+     */
+    public static Future<Boolean> runTask(TriggerParam triggerParam, IJobHandler handler) {
+        return helper.addTask(triggerParam, handler, null);
     }
 }

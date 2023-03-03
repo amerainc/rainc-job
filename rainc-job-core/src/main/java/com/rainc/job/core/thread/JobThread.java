@@ -141,7 +141,6 @@ public class JobThread extends Thread {
             idleTimes++;
             this.future = null;
             TriggerParam triggerParam = null;
-            long l = System.currentTimeMillis();
             try {
                 // 读取阻塞队列，没有数据阻塞3秒空闲时间
                 triggerParam = triggerQueue.poll(3L, TimeUnit.SECONDS);
@@ -152,9 +151,9 @@ public class JobThread extends Thread {
                     //移除日志id
                     triggerLogIdSet.remove(triggerParam.getLogId());
                     if (isConcurrent) {
-                        //如果是并发情况
-                        //运行任务
-                        this.future = TaskPoolHelper.runTask(triggerParam, handler, null);
+                        //如果是并发
+                        //运行任务，记录到并发任务表
+                        this.future = TaskPoolHelper.runTask(triggerParam, handler);
                         concurrentTaskMap.put(triggerParam, future);
                         //移除所有已经完成或取消的任务
                         concurrentTaskMap.forEach((key, value) -> {
@@ -169,34 +168,38 @@ public class JobThread extends Thread {
                         //阻塞线程
                         semaphore.acquire();
                     }
-                } else {
-                    if (idleTimes > 30) {
-                        //避免并发问题
-                        if (triggerQueue.size() == 0 && MapUtil.isNotEmpty(concurrentTaskMap)) {
-                            RaincJobExecutor.removeJobThread(jobId, "执行器空闲时间超限制。");
-                        }
+                }
+
+                if (idleTimes > 30) {
+                    //避免并发问题
+                    if (triggerQueue.size() == 0 && MapUtil.isNotEmpty(concurrentTaskMap)) {
+                        RaincJobExecutor.removeJobThread(jobId, "执行器空闲时间超限制。");
                     }
                 }
-            } catch (Throwable e) {
+            } catch (Throwable ignored) {
 
             } finally {
                 if (triggerParam != null) {
                     if (toStop) {
+                        if (this.future != null&&!this.future.isDone()) {
+                            this.future.cancel(true);
+                        }
                         ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务运行中, 被终止。]");
                         TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
                     }
                 }
             }
         }
-
-        while (triggerQueue != null && triggerQueue.size() > 0) {
+        //取消阻塞队列中的任务
+        while (triggerQueue.size() > 0) {
             TriggerParam triggerParam = triggerQueue.poll();
             if (triggerParam != null) {
                 ReturnT<String> stopResult = new ReturnT<>(ReturnT.FAIL_CODE, stopReason + " [任务未执行，在队列中, 被终止。]");
                 TaskCallbackThread.pushCallBack(new HandleCallbackParam(triggerParam.getLogId(), triggerParam.getLogDateTime(), stopResult));
             }
         }
-        if (concurrentTaskMap != null && concurrentTaskMap.size() > 0) {
+        //取消所有执行中的并发任务
+        if (MapUtil.isNotEmpty(concurrentTaskMap)) {
             concurrentTaskMap.forEach((key, value) -> {
                 if (!value.isDone()) {
                     value.cancel(true);

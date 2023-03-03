@@ -51,4 +51,8 @@ public class TriggerParam implements Serializable {
      * 分片参数
      */
     private ShardingParam shardingParam;
+
+    public boolean isTimeoutTask(){
+        return executorTimeout>0;
+    }
 }

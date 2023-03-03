@@ -51,7 +51,7 @@ public class ExecutorBizImpl implements ExecutorBiz {
             jobHandler = newJobHandler;
         }
         //载入阻塞策略
-        ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy(), null);
+        ExecutorBlockStrategyEnum blockStrategy = ExecutorBlockStrategyEnum.match(triggerParam.getExecutorBlockStrategy());
         //执行器阻塞策略
         if (jobThread != null) {
             if (ExecutorBlockStrategyEnum.DISCARD_LATER == blockStrategy) {
