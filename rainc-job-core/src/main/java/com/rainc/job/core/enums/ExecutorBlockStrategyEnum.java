@@ -35,10 +35,7 @@ public enum ExecutorBlockStrategyEnum {
         this.title = title;
     }
 
-    private static final Map<String,ExecutorBlockStrategyEnum> ENUMS;
-    static {
-        ENUMS=Arrays.stream(ExecutorBlockStrategyEnum.values()).collect(Collectors.toMap(ExecutorBlockStrategyEnum::name,e->e));
-    }
+    private static final Map<String,ExecutorBlockStrategyEnum> ENUMS=Arrays.stream(values()).collect(Collectors.toMap(ExecutorBlockStrategyEnum::name,e->e));;
 
     public static ExecutorBlockStrategyEnum match(String name, ExecutorBlockStrategyEnum defaultItem) {
        return ENUMS.getOrDefault(name,defaultItem);
